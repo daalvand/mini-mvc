@@ -2,8 +2,10 @@
 
 namespace Core;
 
+use Core\Contracts\Http\Controller;
 use Core\Contracts\Router as RouterContract;
 use Core\Exceptions\NotFoundException;
+use RuntimeException;
 
 class Router implements RouterContract
 {
@@ -74,7 +76,10 @@ class Router implements RouterContract
         if (!$callback) {
             throw new NotFoundException();
         }
-        // todo implement controller
+
+        if(is_array($callback)) {
+            $callback = $this->resolveController($callback);
+        }
 
         return $callback();
     }
@@ -111,5 +116,16 @@ class Router implements RouterContract
             $path = substr($path, 0, $position);
         }
         return $path;
+    }
+
+    private function resolveController(array $callback): array
+    {
+        $class = $callback[0];
+        if (!class_exists($class) || !is_subclass_of($class, Controller::class)) {
+            throw new RuntimeException("Invalid Controller!");
+        }
+
+        $callback[0] = new $class;
+        return $callback;
     }
 }
