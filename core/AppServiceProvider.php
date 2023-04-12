@@ -4,12 +4,14 @@ namespace Core;
 
 use Core\Contracts\DB\Database as DatabaseContract;
 use Core\Contracts\DB\Migrator as MigratorContract;
+use Core\Contracts\DB\QueryBuilder as QueryBuilderContract;
 use Core\Contracts\Router as RouterContract;
 use Core\Contracts\ServiceProvider;
 use Core\Contracts\App;
 use Core\Contracts\View as ViewContract;
 use Core\DB\Database;
 use Core\DB\Migrator;
+use Core\DB\QueryBuilder;
 
 class AppServiceProvider implements ServiceProvider
 {
@@ -40,6 +42,10 @@ class AppServiceProvider implements ServiceProvider
                  config: $app->getConfig('views'),
                  basePath: $app->basePath(),
             );
+        });
+
+        $this->app->set(QueryBuilderContract::class, function (App $app) {
+            return new QueryBuilder($app->get(DatabaseContract::class));
         });
     }
 }

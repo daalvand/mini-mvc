@@ -11,10 +11,12 @@ class HomeController implements Controller
     {
         $page     = (int)($_GET['page'] ?? 1);
         $perPage  = (int)($_GET['per_page'] ?? 6);
-        $paginate = Item::paginate([], page: $page, perPage: $perPage);
+        $items    = Item::query()->offset(($page - 1) * $perPage)->limit($perPage)->get();
+        $total    = Item::query()->count();
+        $lastPage = ceil($total / $perPage);
         return render_view('home', [
-             'items' => $paginate['data'],
-             'meta'  => $paginate['meta'],
+             'items' => $items,
+             'meta'  => ['page' => $page, 'total' => $total, 'last_page' => $lastPage],
              'name'  => app()->getConfig('app_name'),
         ]);
     }
@@ -25,18 +27,11 @@ class HomeController implements Controller
         $cart  = $_COOKIE['cartItemList'] ?? '{}';
         $cart  = json_decode($cart, true);
         $cart  = array_filter($cart, static fn($quantity) => $quantity > 0);
-        $items = ['data' => [], 'meta' => []];
+        $items = [];
         if ($cart) {
-            $items = Item::paginate(['id' => array_keys($cart)], perPage: count($cart));
-            foreach ($items['data'] as &$item) {
-                $item->quantity = $cart[$item->id];
-            }
+            $items = Item::query()->whereIn('id', array_keys($cart))->limit(count($cart))->get();
         }
 
-
-        return render_view('cart-list', [
-             'items' => $items['data'],
-             'meta'  => $items['meta'],
-        ]);
+        return render_view('cart-list', compact('items'));
     }
 }
