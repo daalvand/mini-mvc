@@ -22,10 +22,10 @@ if (!$user) {
     ]);
 }
 
-for ($i = 0; $i < 100; $i++) {
+for ($i = 1; $i <= 100; $i++) {
     $items = Item::create([
-         'title'       => generate_random_string(100),
-         "description" => generate_random_string(10000),
+         'title'       => generate_random_string(20),
+         "description" => generate_random_string(100),
          "image"       => "https://fakeimg.pl/350x200/ff0000,128/000,255",
     ]);
 }

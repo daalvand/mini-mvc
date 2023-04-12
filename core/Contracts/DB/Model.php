@@ -110,7 +110,12 @@ abstract class Model
         $orderSql = implode(", ", $orderSqlArray);
 
         $offset    = (max($page, 0) - 1) * $perPage;
-        $statement = self::prepare("SELECT * FROM $tableName WHERE $whereSql ORDER BY $orderSql LIMIT $perPage OFFSET $offset");
+        if($whereSql){
+            $queryString = "SELECT * FROM $tableName WHERE $whereSql ORDER BY $orderSql LIMIT $perPage OFFSET $offset";
+        }else{
+            $queryString = "SELECT * FROM $tableName ORDER BY $orderSql LIMIT $perPage OFFSET $offset";
+        }
+        $statement = self::prepare($queryString);
         foreach ($where as $key => $item) {
             $statement->bindValue(":$key", $item);
         }
@@ -127,7 +132,11 @@ abstract class Model
             $data[] = $instance;
         }
 
-        $statement = self::prepare("SELECT count(*) as count FROM $tableName WHERE $whereSql");
+        if($whereSql){
+            $statement = self::prepare("SELECT count(*) as count FROM $tableName WHERE $whereSql");
+        }else{
+            $statement = self::prepare("SELECT count(*) as count FROM $tableName");
+        }
         foreach ($where as $key => $item) {
             $statement->bindValue(":$key", $item);
         }
