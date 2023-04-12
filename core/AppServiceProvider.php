@@ -3,10 +3,13 @@
 namespace Core;
 
 use Core\Contracts\DB\Database as DatabaseContract;
+use Core\Contracts\DB\Migrator as MigratorContract;
 use Core\Contracts\Router as RouterContract;
 use Core\Contracts\ServiceProvider;
 use Core\Contracts\App;
 use Core\DB\Database;
+use Core\DB\Migrator;
+
 class AppServiceProvider implements ServiceProvider
 {
     public function __construct(protected App $app)
@@ -22,6 +25,13 @@ class AppServiceProvider implements ServiceProvider
 
         $this->app->set(DatabaseContract::class, function (App $app) {
             return new Database(config: $app->getConfig('db'));
+        });
+
+        $this->app->set(MigratorContract::class, function (App $app) {
+            return new Migrator(
+                 database: $app->get(DatabaseContract::class),
+                 basePath: $app->basePath()
+            );
         });
     }
 }
