@@ -20,6 +20,7 @@
                         <p class="card-text"><small class="text-muted">{{ $item->created_at }}</small></p>
                     </div>
                     <button type="button" onclick="addItem({{$item->id}})">add</button>
+                    <span class="item-cart-counter" item_id="{{$item->id}}"></span>
                     <button type="button" onclick="removeItem({{$item->id}})">remove</button>
                 </div>
             <?php endforeach; ?>
