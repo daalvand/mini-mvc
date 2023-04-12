@@ -49,4 +49,19 @@ class App implements AppContract
         }
         return new $contract;
     }
+
+    public function getConfigs(): array
+    {
+        return $this->configs;
+    }
+
+    public function getConfig(string $key): mixed
+    {
+        return $this->configs[$key] ?? null;
+    }
+
+    public function basePath(): string
+    {
+        return $this->basePath;
+    }
 }

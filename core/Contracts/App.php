@@ -11,4 +11,10 @@ interface App
     public function get(string $contract): mixed;
 
     public static function getInstance(): static;
+
+    public function getConfigs(): array;
+
+    public function getConfig(string $key): mixed;
+
+    public function basePath(): string;
 }
