@@ -26,7 +26,7 @@
                 </ul>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#" id="nav-cart">Cart</a>
+                    <a class="nav-link" href="/cart-list" id="nav-cart">Cart</a>
                     <span id="nav-cart-counter"></span>
                 </li>
             </ul>

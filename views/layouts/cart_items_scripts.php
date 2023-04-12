@@ -1,7 +1,7 @@
 <script>
     function updateItemCartCounters() {
         let counters = document.querySelectorAll(".item-cart-counter");
-        let itemList = JSON.parse(getCookie("itemList") ?? "{}");
+        let itemList = JSON.parse(getCookie("cartItemList") ?? "{}");
         counters.forEach(counter => {
             let item_id = counter.getAttribute("item_id");
             counter.innerText = itemList[item_id] ? itemList[item_id] : 0;
@@ -21,30 +21,30 @@
 
 
     function addItem(item) {
-        let itemList = JSON.parse(getCookie("itemList") ?? "{}");
+        let itemList = JSON.parse(getCookie("cartItemList") ?? "{}");
         itemList[item] = itemList[item] ? itemList[item] + 1 : 1;
-        setCookie("itemList", JSON.stringify(itemList));
+        setCookie("cartItemList", JSON.stringify(itemList));
         updateCartCounter();
-        updateItemCartCounter(item, itemList[item])
+        updateItemCartCounter(item, itemList[item] ?? 0)
     }
 
     function removeItem(item) {
-        let itemList = JSON.parse(getCookie("itemList") ?? "{}");
-        if (itemList[item]) {
+        let itemList = JSON.parse(getCookie("cartItemList") ?? "{}");
+        if (itemList[item] && itemList[item] > 1) {
             itemList[item] = itemList[item] - 1;
         } else {
             delete itemList[item];
         }
 
-        setCookie("itemList", JSON.stringify(itemList));
+        setCookie("cartItemList", JSON.stringify(itemList));
         updateCartCounter();
-        updateItemCartCounter(item, itemList[item])
+        updateItemCartCounter(item, itemList[item] ?? 0)
     }
 
 
     function updateCartCounter() {
         let counter = document.getElementById("nav-cart-counter");
-        let itemList = JSON.parse(getCookie("itemList") ?? "{}");
+        let itemList = JSON.parse(getCookie("cartItemList") ?? "{}");
         itemList.values
         let sum = 0;
         for (let key in itemList) {

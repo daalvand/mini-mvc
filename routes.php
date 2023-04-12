@@ -17,3 +17,4 @@ $router->get('test', function () {
 });
 
 $router->get('', [HomeController::class, 'index']);
+$router->get('cart-list', [HomeController::class, 'cart']);

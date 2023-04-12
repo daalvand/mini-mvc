@@ -20,10 +20,23 @@ class HomeController implements Controller
     }
 
     //get cart list from cookie
-     public function cart(): string
-     {
-          $cart = $_COOKIE['cart'] ?? '[]';
-          $cart = json_decode($cart, true);
-          //todo implement cart list
-     }
+    public function cart(): string
+    {
+        $cart  = $_COOKIE['cartItemList'] ?? '{}';
+        $cart  = json_decode($cart, true);
+        $cart  = array_filter($cart, static fn($quantity) => $quantity > 0);
+        $items = ['data' => [], 'meta' => []];
+        if ($cart) {
+            $items = Item::paginate(['id' => array_keys($cart)], perPage: count($cart));
+            foreach ($items['data'] as &$item) {
+                $item->quantity = $cart[$item->id];
+            }
+        }
+
+
+        return render_view('cart-list', [
+             'items' => $items['data'],
+             'meta'  => $items['meta'],
+        ]);
+    }
 }
