@@ -15,6 +15,7 @@ class App implements AppContract
     public function __construct(protected string $basePath, protected array $configs)
     {
         static::$instance = $this;
+        (new AppServiceProvider(app: $this))->register();
     }
 
     public static function getInstance(): static
