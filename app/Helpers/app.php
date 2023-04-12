@@ -3,6 +3,7 @@
 use Core\App;
 use Core\Contracts\DB\Database;
 use Core\Contracts\Router;
+use Core\Contracts\View;
 
 function app(): App
 {
@@ -15,4 +16,9 @@ function database(){
 function router(): Router
 {
     return app()->get(Router::class);
+}
+
+function render_view(string $view, array $data = []): string
+{
+    return app()->get(View::class)->view($view, $data);
 }

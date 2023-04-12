@@ -13,4 +13,7 @@ return [
           'username' => $_ENV['DB_USER'],
           'password' => $_ENV['DB_PASSWORD'],
      ],
+     'views'      => [
+          'path'       => 'views'
+     ],
 ];

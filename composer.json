@@ -4,7 +4,8 @@
     "autoload": {
         "files": [
             "app/Helpers/app.php",
-            "app/Helpers/string.php"
+            "app/Helpers/string.php",
+            "app/Helpers/path.php"
         ],
         "psr-4": {
             "App\\": "app/",

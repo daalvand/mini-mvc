@@ -7,6 +7,7 @@ use Core\Contracts\DB\Migrator as MigratorContract;
 use Core\Contracts\Router as RouterContract;
 use Core\Contracts\ServiceProvider;
 use Core\Contracts\App;
+use Core\Contracts\View as ViewContract;
 use Core\DB\Database;
 use Core\DB\Migrator;
 
@@ -31,6 +32,13 @@ class AppServiceProvider implements ServiceProvider
             return new Migrator(
                  database: $app->get(DatabaseContract::class),
                  basePath: $app->basePath()
+            );
+        });
+
+        $this->app->set(ViewContract::class, function (App $app) {
+            return new View(
+                 config: $app->getConfig('views'),
+                 basePath: $app->basePath(),
             );
         });
     }
