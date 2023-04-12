@@ -4,6 +4,7 @@ namespace Core;
 
 
 use Core\Contracts\App as AppContract;
+use Core\Contracts\Router;
 
 class App implements AppContract
 {
@@ -23,7 +24,7 @@ class App implements AppContract
 
     public function run(): void
     {
-        echo 'hello world!';
+        echo $this->get(Router::class)->resolve();
     }
 
     public function set(string $contract, callable|object $callable): void
