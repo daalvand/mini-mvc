@@ -24,6 +24,11 @@
                         <a class="nav-link" href="/register">Register</a>
                     </li>
                 </ul>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="nav-cart">Cart</a>
+                    <span id="nav-cart-counter"></span>
+                </li>
             </ul>
         </div>
     </div>

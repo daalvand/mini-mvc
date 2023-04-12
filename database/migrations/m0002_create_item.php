@@ -10,6 +10,7 @@ return new class implements Migration {
                 title VARCHAR(1000) NOT NULL,
                 image VARCHAR(255) NOT NULL,
                 description TEXT NOT NULL,
+                price INT NOT NULL,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )  ENGINE=INNODB;";

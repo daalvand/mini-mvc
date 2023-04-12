@@ -16,8 +16,11 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ $item->title }}</h5>
                         <p class="card-text">{{ $item->description }}</p>
+                        <p class="card-text">{{ $item->price }} $</p>
                         <p class="card-text"><small class="text-muted">{{ $item->created_at }}</small></p>
                     </div>
+                    <button type="button" onclick="addItem({{$item->id}})">add</button>
+                    <button type="button" onclick="removeItem({{$item->id}})">remove</button>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -31,6 +34,7 @@
     </div>
 
     @include(layouts/scripts.php)
+    @include(layouts/cart_items_scripts.php)
 </body>
 
 
