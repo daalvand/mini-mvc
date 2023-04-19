@@ -3,14 +3,16 @@
 namespace Core;
 
 
-use Core\Contracts\App as AppContract;
+use Core\Contracts\App as ContractApp;
 use Core\Contracts\Router;
+use Exception;
 
-class App implements AppContract
+class App implements ContractApp
 {
     protected static self $instance;
-    protected array       $callbacks; // services that can instantiated
-    protected array       $instantiated;// instantiated services
+    protected array       $callbacks;
+    protected array       $singletonCallbacks;
+    protected array       $singletonInstantiated;
 
     public function __construct(protected string $basePath, protected array $configs)
     {
@@ -23,32 +25,60 @@ class App implements AppContract
         return static::$instance;
     }
 
+    /**
+     * @throws Exception
+     */
     public function run(): void
     {
         echo $this->get(Router::class)->resolve();
     }
 
-    public function set(string $contract, callable|object $callable): void
+    public function singleton(string $contract, callable|object|array $callable): void
     {
-        unset($this->instantiated[$contract]);
-        if (is_callable($callable)) {
-            $this->callbacks[$contract] = $callable;
-        } else {
-            $this->instantiated[$contract] = $callable;
-        }
+        $this->singletonCallbacks[$contract] = $callable;
     }
 
+    public function bind(string $contract, callable|object|array $callable): void
+    {
+        $this->callbacks[$contract] = $callable;
+    }
+
+    /**
+     * @throws Exception
+     */
     public function get(string $contract): mixed
     {
-        if (isset($this->instantiated[$contract])) {
-            return $this->instantiated[$contract];
+        if (isset($this->singletonInstantiated[$contract])) {
+            return $this->singletonInstantiated[$contract];
         }
+
+        if (isset($this->singletonCallbacks[$contract])) {
+            return $this->singletonInstantiated[$contract] = $this->build($this->singletonCallbacks[$contract]);
+        }
+
         if (isset($this->callbacks[$contract])) {
-            $this->instantiated[$contract] = $this->callbacks[$contract]($this);
-            return $this->instantiated[$contract];
+            return $this->build($this->callbacks[$contract]);
         }
-        return new $contract;
+
+        throw new Exception("Cannot resolve {$contract}");
     }
+
+    protected function build(callable|object|array $callable): mixed
+    {
+        if (is_object($callable)) {
+            return $callable;
+        }
+
+        if (is_array($callable)) {
+            $class  = $callable[0];
+            $method = $callable[1];
+            $args   = array_slice($callable, 2);
+            return (new $class)->$method(...$args);
+        }
+
+        return $callable();
+    }
+
 
     public function getConfigs(): array
     {

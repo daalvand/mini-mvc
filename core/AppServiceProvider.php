@@ -21,30 +21,30 @@ class AppServiceProvider implements ServiceProvider
 
     public function register(): void
     {
-        $this->app->set(RouterContract::class, function (App $app) {
+        $this->app->singleton(RouterContract::class, function () {
             return new Router();
         });
 
 
-        $this->app->set(DatabaseContract::class, function (App $app) {
+        $this->app->singleton(DatabaseContract::class, function (App $app) {
             return new Database(config: $app->getConfig('db'));
         });
 
-        $this->app->set(MigratorContract::class, function (App $app) {
+        $this->app->singleton(MigratorContract::class, function (App $app) {
             return new Migrator(
                  database: $app->get(DatabaseContract::class),
                  basePath: $app->basePath()
             );
         });
 
-        $this->app->set(ViewContract::class, function (App $app) {
+        $this->app->singleton(ViewContract::class, function (App $app) {
             return new View(
                  config: $app->getConfig('views'),
                  basePath: $app->basePath(),
             );
         });
 
-        $this->app->set(QueryBuilderContract::class, function (App $app) {
+        $this->app->bind(QueryBuilderContract::class, function (App $app) {
             return new QueryBuilder($app->get(DatabaseContract::class));
         });
     }
