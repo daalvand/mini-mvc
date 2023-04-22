@@ -12,7 +12,7 @@ return new class implements Migration {
             $table->string('image');
             $table->text('description');
             $table->unsignedInteger('price');
-            $table->timestamps();
+            $table->timestampsCurrent();
         });
     }
 

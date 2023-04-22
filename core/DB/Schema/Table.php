@@ -30,7 +30,7 @@ class Table
 
     public function id(string $name = 'id'): Column
     {
-        return $this->column($name, 'INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY');
+        return $this->unsignedInteger($name)->primaryKey()->autoIncrement();
     }
 
     public function string(string $name, int $length = 255): Column
@@ -57,6 +57,12 @@ class Table
     {
         $this->timestamp('updated_at')->nullable();
         $this->timestamp('created_at')->nullable();
+    }
+
+    public function timestampsCurrent(): void
+    {
+        $this->timestampCurrent('updated_at');
+        $this->timestampCurrent('created_at');
     }
 
     public function integer(string $name): Column

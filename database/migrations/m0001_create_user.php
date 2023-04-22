@@ -12,7 +12,7 @@ return new class implements Migration {
             $table->string('first_name');
             $table->string('last_name');
             $table->string('password');
-            $table->timestamps();
+            $table->timestampsCurrent();
         });
     }
 
