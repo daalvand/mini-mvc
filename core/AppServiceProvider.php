@@ -5,6 +5,7 @@ namespace Core;
 use Core\Contracts\DB\Database as DatabaseContract;
 use Core\Contracts\DB\Migrator as MigratorContract;
 use Core\Contracts\DB\QueryBuilder as QueryBuilderContract;
+use Core\Contracts\Session as SessionContract;
 use Core\Contracts\Router as RouterContract;
 use Core\Contracts\ServiceProvider;
 use Core\Contracts\App;
@@ -46,6 +47,10 @@ class AppServiceProvider implements ServiceProvider
 
         $this->app->bind(QueryBuilderContract::class, function (App $app) {
             return new QueryBuilder($app->get(DatabaseContract::class));
+        });
+
+        $this->app->singleton(SessionContract::class, function () {
+            return new Session();
         });
     }
 }
