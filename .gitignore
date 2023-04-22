@@ -3,3 +3,5 @@ vendor
 .env
 .vscode
 .history
+.phpunit.result.cache
+.phpunit.cache

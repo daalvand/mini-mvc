@@ -103,4 +103,9 @@ abstract class Model implements ArrayAccess
     {
         unset($this->attributes[$offset]);
     }
+
+    public function getFillable(): array
+    {
+        return $this->fillable;
+    }
 }
