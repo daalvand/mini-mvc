@@ -9,19 +9,20 @@ use PDO;
 
 class QueryBuilder implements QueryBuilderContract
 {
-    protected array    $params  = [];
-    protected array    $values  = [];
-    protected array    $wheres  = [];
-    protected string   $select  = '*';
-    protected array    $orderBy = [];
-    protected int|null $limit   = null;
-    protected int|null $offset  = null;
-    protected string   $sql     = '';
+    protected array    $params;
+    protected array    $values;
+    protected array    $wheres;
+    protected string   $select;
+    protected array    $orderBy;
+    protected int|null $limit;
+    protected int|null $offset;
+    protected string   $sql;
     protected string   $model;
     protected string   $table;
 
     public function __construct(protected Database $database)
     {
+        $this->reset();
     }
 
     public function model(string $modelClass): static
@@ -110,10 +111,10 @@ class QueryBuilder implements QueryBuilderContract
         $stmt->execute(array_merge($this->values, $this->params));
         $this->reset();
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if(!$result){
+        if (!$result) {
             return [];
         }
-        if($raw){
+        if ($raw) {
             return $result;
         }
         return $this->convertRawToModel($result);
@@ -184,7 +185,7 @@ class QueryBuilder implements QueryBuilderContract
     public function count(): int
     {
         $this->select = 'COUNT(*) as count';
-        $result = $this->get(true);
+        $result       = $this->get(true);
         return $result[0]['count'] ?? 0;
     }
 
