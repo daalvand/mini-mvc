@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Core\Contracts\DB\Model;
+use Core\Contracts\DB\UserModel;
 
 /**
  * @property int    id
@@ -11,7 +11,7 @@ use Core\Contracts\DB\Model;
  * @property string $email
  * @property string $password
  */
-class User extends Model
+class User extends UserModel
 {
     protected static string $tableName = 'users';
     protected array $fillable = ['first_name', 'last_name', 'email', 'password'];

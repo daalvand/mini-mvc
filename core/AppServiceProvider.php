@@ -2,13 +2,14 @@
 
 namespace Core;
 
+use Core\Contracts\App;
+use Core\Contracts\AuthManager as AuthManagerContract;
 use Core\Contracts\DB\Database as DatabaseContract;
 use Core\Contracts\DB\Migrator as MigratorContract;
 use Core\Contracts\DB\QueryBuilder as QueryBuilderContract;
-use Core\Contracts\Session as SessionContract;
 use Core\Contracts\Router as RouterContract;
 use Core\Contracts\ServiceProvider;
-use Core\Contracts\App;
+use Core\Contracts\Session as SessionContract;
 use Core\Contracts\View as ViewContract;
 use Core\DB\Database;
 use Core\DB\Migrator;
@@ -51,6 +52,13 @@ class AppServiceProvider implements ServiceProvider
 
         $this->app->singleton(SessionContract::class, function () {
             return new Session();
+        });
+
+        $this->app->singleton(AuthManagerContract::class, function (App $app) {
+            return new AuthManager(
+                 session: $app->get(SessionContract::class),
+                 configs: $app->getConfig('auth'),
+            );
         });
     }
 }
