@@ -6,9 +6,7 @@ use Throwable;
 
 interface Migrator
 {
-    /**
-     * @throws Throwable
-     * @return void
-     */
     public function applyMigrations(): void;
+
+    public function rollbackMigrations(): void;
 }

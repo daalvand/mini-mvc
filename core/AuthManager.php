@@ -2,9 +2,9 @@
 
 namespace Core;
 
-use Core\Contracts\DB\UserModel;
-use Core\Contracts\Session;
 use Core\Contracts\AuthManager as AuthManagerContract;
+use Core\Contracts\Session;
+use Core\DB\UserModel;
 
 class AuthManager implements AuthManagerContract
 {

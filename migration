@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+use Core\App;
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+$config = require __DIR__ . '/config.php';
+
+$app = new App(__DIR__, $config);
+
+if (isset($argv[1]) && $argv[1] === 'migrate') {
+    migrator()->applyMigrations();
+}else if (isset($argv[1]) && $argv[1] === 'rollback') {
+    migrator()->rollbackMigrations();
+}

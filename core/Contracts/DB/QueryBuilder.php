@@ -4,7 +4,7 @@ namespace Core\Contracts\DB;
 
 interface QueryBuilder
 {
-    public function model(string $modelClass): static;
+    public function table(string $table): static;
 
     public function select(array|string $columns = '*'): static;
 
@@ -22,7 +22,7 @@ interface QueryBuilder
 
     public function offset(int $offset): static;
 
-    public function get(bool $raw = false): array|false;
+    public function get(): array|false;
 
     public function insert(array $data): bool;
 

@@ -1,8 +1,10 @@
 <?php
 
-namespace Core\Contracts\DB;
+namespace Core\DB;
 
-abstract class Model
+use ArrayAccess;
+
+abstract class Model implements ArrayAccess
 {
 
     protected static string $tableName;
@@ -68,7 +70,7 @@ abstract class Model
     public static function findOne(int $id): static|null
     {
         $result = static::query()->where(static::primaryKey(), '=', $id)->get();
-        if($result){
+        if ($result) {
             return reset($result);
         }
         return null;
@@ -81,8 +83,28 @@ abstract class Model
         }
     }
 
-    public static function query(): QueryBuilder
+    public static function query(): ModelQueryBuilder
     {
-        return query_builder()->model(static::class);
+        return (new ModelQueryBuilder(database()))->model(static::class);
+    }
+
+    public function offsetExists($offset): bool
+    {
+        return isset($this->attributes[$offset]);
+    }
+
+    public function offsetGet($offset): mixed
+    {
+        return $this->attributes[$offset] ?? null;
+    }
+
+    public function offsetSet($offset, $value): void
+    {
+        $this->attributes[$offset] = $value;
+    }
+
+    public function offsetUnset($offset): void
+    {
+        unset($this->attributes[$offset]);
     }
 }

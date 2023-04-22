@@ -15,13 +15,23 @@ class Database implements DatabaseContract
         $this->pdo = new PDO(...$config);
     }
 
-    public function prepare(string $sql): PDOStatement
+    public function prepare(string $sql, array $options = []): PDOStatement
     {
-        return $this->pdo->prepare($sql);
+        return $this->pdo->prepare($sql, $options);
     }
 
     public function pdo(): PDO
     {
         return $this->pdo;
+    }
+
+    public function query(string $sql, int|null $fetchMode = null, mixed ...$fetch_mode_args): PDOStatement
+    {
+        return $this->pdo->query($sql, $fetchMode, $fetch_mode_args);
+    }
+
+    public function exec(string $sql): int|false
+    {
+        return $this->pdo->exec($sql);
     }
 }

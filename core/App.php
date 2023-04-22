@@ -60,13 +60,13 @@ class App implements ContractApp
             return $this->build($this->callbacks[$contract]);
         }
 
-        throw new Exception("Cannot resolve {$contract}");
+        throw new Exception("Cannot resolve $contract");
     }
 
     protected function build(callable|object|array $callable): mixed
     {
-        if (is_object($callable)) {
-            return $callable;
+        if (is_callable($callable)) {
+            return $callable($this);
         }
 
         if (is_array($callable)) {
@@ -76,7 +76,7 @@ class App implements ContractApp
             return (new $class)->$method(...$args);
         }
 
-        return $callable();
+        return $callable;
     }
 
 

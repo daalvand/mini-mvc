@@ -4,13 +4,13 @@ namespace Core\DB;
 
 use Core\Contracts\DB\Migration;
 use Core\Contracts\DB\Migrator as MigratorContract;
-use Core\Contracts\DB\Database;
-use PDO;
+use Core\Contracts\DB\QueryBuilder;
+use Core\DB\Schema\Table;
 
 class Migrator implements MigratorContract
 {
     public function __construct(
-         protected Database $database,
+         protected QueryBuilder $builder,
          protected string $basePath
     ) {
     }
@@ -22,7 +22,7 @@ class Migrator implements MigratorContract
         foreach ($newMigrations as ['file' => $file, 'name' => $name]) {
             $instance = require $file;
             if ($instance instanceof Migration) {
-                $this->database->pdo()->exec($instance->up());
+                $instance->up();
             }
         }
 
@@ -31,21 +31,34 @@ class Migrator implements MigratorContract
         }
     }
 
-    protected function createMigrationsTable(): void
+    public function rollbackMigrations(): void
     {
-        $this->database->pdo()->exec(
-             "CREATE TABLE IF NOT EXISTS migrations (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                migration VARCHAR(255),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )  ENGINE=INNODB;"
-        );
+        $this->createMigrationsTable();
+        $appliedMigrations = $this->getAppliedMigrations();
+        foreach ($appliedMigrations as $migration) {
+            $instance = require $this->basePath . '/database/migrations/' . $migration['migration'] . '.php';
+            if ($instance instanceof Migration) {
+                $instance->down();
+            }
+        }
+
+        if (!empty($appliedMigrations)) {
+            $this->deleteMigrations($appliedMigrations);
+        }
     }
 
-    protected function getAppliedMigrations(): bool|array
+    protected function createMigrationsTable(): void
     {
-        $statement = $this->database->pdo()->query("SELECT migration FROM migrations");
-        return $statement->fetchAll(PDO::FETCH_COLUMN);
+        schema()->createTable('migrations', function (Table $table) {
+            $table->id();
+            $table->string('migration');
+            $table->timestampCurrent('created_at');
+        });
+    }
+
+    protected function getAppliedMigrations(): false|array
+    {
+        return $this->builder->table('migrations')->orderBy('id', 'DESC')->get();
     }
 
     protected function getNewMigrations(): array
@@ -64,9 +77,16 @@ class Migrator implements MigratorContract
 
     protected function saveMigrations(array $newMigrations): void
     {
-        $values = array_map(static fn($m) => "('$m')", $newMigrations);
-        $query  = "INSERT INTO migrations (migration) VALUES " . implode(',', $values);
-        $this->database->pdo()->exec($query);
+        $data = [];
+        foreach ($newMigrations as $newMigration) {
+            $data[] = ['migration' => $newMigration];
+        }
+        $this->builder->table('migrations')->insert($data);
     }
 
+    private function deleteMigrations(array $appliedMigrations): void
+    {
+        $names = array_column($appliedMigrations, 'migration');
+        $this->builder->table('migrations')->whereIn('migration', $names)->delete();
+    }
 }

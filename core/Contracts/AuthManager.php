@@ -2,7 +2,7 @@
 
 namespace Core\Contracts;
 
-use Core\Contracts\DB\UserModel;
+use Core\DB\UserModel;
 
 interface AuthManager
 {

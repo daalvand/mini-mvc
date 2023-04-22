@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Core\Contracts\DB\UserModel;
+use Core\DB\UserModel;
 
 /**
  * @property int    id

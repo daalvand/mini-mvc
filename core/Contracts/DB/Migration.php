@@ -4,7 +4,7 @@ namespace Core\Contracts\DB;
 
 interface Migration
 {
-    public function up(): string;
+    public function up();
 
-    public function down(): string;
+    public function down();
 }

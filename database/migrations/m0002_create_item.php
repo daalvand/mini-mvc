@@ -1,23 +1,23 @@
 <?php
 
 use Core\Contracts\DB\Migration;
+use Core\DB\Schema\Table;
 
 return new class implements Migration {
-    public function up(): string
+    public function up(): void
     {
-        return "CREATE TABLE items (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                title VARCHAR(1000) NOT NULL,
-                image VARCHAR(255) NOT NULL,
-                description TEXT NOT NULL,
-                price INT NOT NULL,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )  ENGINE=INNODB;";
+        schema()->createTable('items', function (Table $table) {
+            $table->id();
+            $table->string('title', 1000);
+            $table->string('image');
+            $table->text('description');
+            $table->unsignedInteger('price');
+            $table->timestamps();
+        });
     }
 
-    public function down(): string
+    public function down(): void
     {
-        return "DROP TABLE items;";
+        schema()->dropTable('items');
     }
 };

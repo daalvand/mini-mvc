@@ -3,7 +3,6 @@
 namespace Core\DB;
 
 use Core\Contracts\DB\Database;
-use Core\Contracts\DB\Model;
 use Core\Contracts\DB\QueryBuilder as QueryBuilderContract;
 use PDO;
 
@@ -25,11 +24,9 @@ class QueryBuilder implements QueryBuilderContract
         $this->reset();
     }
 
-    public function model(string $modelClass): static
+    public function table(string $table): static
     {
-        /** @var Model $modelClass */
-        $this->table = $modelClass::tableName();
-        $this->model = $modelClass;
+        $this->table = $table;
         return $this;
     }
 
@@ -88,7 +85,7 @@ class QueryBuilder implements QueryBuilderContract
         return $this;
     }
 
-    public function get(bool $raw = false): array
+    public function get(): array
     {
         $this->parseWheres();
 
@@ -114,34 +111,23 @@ class QueryBuilder implements QueryBuilderContract
         if (!$result) {
             return [];
         }
-        if ($raw) {
-            return $result;
-        }
-        return $this->convertRawToModel($result);
+        return $result;
     }
-
-    protected function convertRawToModel(array $result): array
-    {
-        $instances = [];
-        foreach ($result as $row) {
-            $instance = new $this->model;
-            foreach ($row as $name => $value) {
-                $instance->{$name} = $value;
-            }
-            $instances[] = $instance;
-        }
-        return $instances;
-    }
-
 
     public function insert(array $data): bool
     {
-        $columns      = array_keys($data);
-        $values       = array_values($data);
-        $placeholders = rtrim(str_repeat('?,', count($values)), ',');
-        $sql          = "INSERT INTO $this->table (" . implode(',', $columns) . ") VALUES ($placeholders)";
-        $stmt         = $this->database->pdo()->prepare($sql);
-        $stmt->execute($values);
+        //if is list of data
+        $data    = array_is_list($data) ? $data : [$data];
+        $columns = array_keys($data[0]);
+        $values  = [];
+        foreach ($data as $row) {
+            $values[]     = rtrim(str_repeat('?,', count($row)), ',');
+            $this->values = array_merge($this->values, array_values($row));
+        }
+        $values = implode('),(', $values);
+        $sql    = "INSERT INTO $this->table (" . implode(',', $columns) . ") VALUES ($values)";
+        $stmt   = $this->database->pdo()->prepare($sql);
+        $stmt->execute($this->values);
         $this->reset();
         return $stmt->rowCount() > 0;
     }
@@ -185,7 +171,7 @@ class QueryBuilder implements QueryBuilderContract
     public function count(): int
     {
         $this->select = 'COUNT(*) as count';
-        $result       = $this->get(true);
+        $result       = $this->get();
         return $result[0]['count'] ?? 0;
     }
 

@@ -6,7 +6,7 @@ use Core\Contracts\App;
 use Core\Contracts\AuthManager as AuthManagerContract;
 use Core\Contracts\DB\Database as DatabaseContract;
 use Core\Contracts\DB\Migrator as MigratorContract;
-use Core\Contracts\DB\QueryBuilder as QueryBuilderContract;
+use Core\Contracts\DB\Schema as SchemaContract;
 use Core\Contracts\Router as RouterContract;
 use Core\Contracts\ServiceProvider;
 use Core\Contracts\Session as SessionContract;
@@ -14,6 +14,7 @@ use Core\Contracts\View as ViewContract;
 use Core\DB\Database;
 use Core\DB\Migrator;
 use Core\DB\QueryBuilder;
+use Core\DB\Schema\Schema;
 
 class AppServiceProvider implements ServiceProvider
 {
@@ -34,7 +35,7 @@ class AppServiceProvider implements ServiceProvider
 
         $this->app->singleton(MigratorContract::class, function (App $app) {
             return new Migrator(
-                 database: $app->get(DatabaseContract::class),
+                 builder: new QueryBuilder($app->get(DatabaseContract::class)),
                  basePath: $app->basePath()
             );
         });
@@ -46,10 +47,6 @@ class AppServiceProvider implements ServiceProvider
             );
         });
 
-        $this->app->bind(QueryBuilderContract::class, function (App $app) {
-            return new QueryBuilder($app->get(DatabaseContract::class));
-        });
-
         $this->app->singleton(SessionContract::class, function () {
             return new Session();
         });
@@ -59,6 +56,10 @@ class AppServiceProvider implements ServiceProvider
                  session: $app->get(SessionContract::class),
                  configs: $app->getConfig('auth'),
             );
+        });
+
+        $this->app->singleton(SchemaContract::class, function (App $app) {
+            return new Schema(db: $app->get(DatabaseContract::class));
         });
     }
 }

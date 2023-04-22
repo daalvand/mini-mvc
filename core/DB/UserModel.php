@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\Contracts\DB;
+namespace Core\DB;
 
 abstract class UserModel extends Model
 {

@@ -7,19 +7,11 @@ use PDOStatement;
 
 interface Database
 {
-    /**
-     * Prepares statement
-     *
-     * @param string $sql
-     *
-     * @return PDOStatement
-     */
-    public function prepare(string $sql): PDOStatement;
+    public function prepare(string $sql, array $options = []): PDOStatement;
 
-    /**
-     * returns pdo
-     *
-     * @return PDO
-     */
+    public function query(string $sql, int|null $fetchMode = null, mixed ...$fetch_mode_args): PDOStatement;
+
+    public function exec(string $sql): int|false;
+
     public function pdo(): PDO;
 }

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 
-use Core\Contracts\DB\Model;
+use Core\DB\Model;
 
 /**
  * @property int id
