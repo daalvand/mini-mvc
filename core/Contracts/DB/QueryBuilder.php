@@ -24,6 +24,8 @@ interface QueryBuilder
 
     public function get(): array|false;
 
+    public function first(): mixed;
+
     public function insert(array $data): bool;
 
     public function delete(): bool;

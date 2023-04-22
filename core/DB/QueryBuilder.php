@@ -114,6 +114,13 @@ class QueryBuilder implements QueryBuilderContract
         return $result;
     }
 
+    public function first(): mixed
+    {
+        $this->limit(1);
+        $result = $this->get();
+        return $result[0] ?? null;
+    }
+
     public function insert(array $data): bool
     {
         //if is list of data
