@@ -1,12 +1,13 @@
 <?php
 
 use Core\App;
+use Core\Contracts\App as AppContract;
 use Core\Contracts\DB\Database;
 use Core\Contracts\DB\QueryBuilder;
 use Core\Contracts\Router;
 use Core\Contracts\View;
 
-function app(): App
+function app(): AppContract
 {
     return App::getInstance();
 }
