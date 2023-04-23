@@ -28,14 +28,21 @@ class Session implements SessionContract
         return $_SESSION[self::TEMP_DATA][$key]['value'] ?? null;
     }
 
-    public function set(string $key, mixed $value): void
+    public function set(string $key, mixed $value, int $expireTime = null): void
     {
-        $_SESSION[$key] = $value;
+        $_SESSION[$key]['value']      = $value;
+        $_SESSION[$key]['expired_at'] = $expireTime;
     }
 
     public function get(string $key): mixed
     {
-        return $_SESSION[$key] ?? null;
+        $session   = $_SESSION[$key] ?? null;
+        $expiredAt = $session['expired_at'] ?? null;
+        if (!$expiredAt || $expiredAt > time()) {
+            return $session['value'] ?? null;
+        }
+        $this->remove($key);
+        return null;
     }
 
     public function remove(string $key): void
@@ -45,6 +52,7 @@ class Session implements SessionContract
 
     public function __destruct()
     {
+        $this->removeExpiredSessions();
         $this->removeTempData();
     }
 
@@ -73,11 +81,28 @@ class Session implements SessionContract
      */
     public function csrfToken(): string
     {
-        $token = $this->getTemp('csrf_token');
+        $config = app()->getConfig('csrf_token');
+        $key    = $config['key'] ?? 'csrf_token';
+        $ttl    = $config['ttl'] ?? 15 * 60;
+        $token  = $this->get($key);
         if (!$token) {
             $token = bin2hex(random_bytes(32));
-            $this->setTemp('csrf_token', $token);
+            $this->set('csrf_token', $token, time() + $ttl);
         }
         return $token;
+    }
+
+    protected function removeExpiredSessions(): void
+    {
+        $sessions = $_SESSION;
+        foreach ($sessions as $key => $session) {
+            if ($key === self::TEMP_DATA) {
+                continue;
+            }
+            $expiredAt = $session['expired_at'] ?? null;
+            if ($expiredAt && $expiredAt < time()) {
+                $this->remove($key);
+            }
+        }
     }
 }

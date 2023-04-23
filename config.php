@@ -38,8 +38,11 @@ return [
                'max'       => Max::class,
                'min'       => Min::class,
                'required'  => Required::class,
-               'same'      => Same::class,
                'unique'    => Unique::class,
           ],
+     ],
+     'csrf'      => [
+          'key' => 'csrf_token',
+          'ttl' => 15 * 60,// 15 minutes
      ],
 ];

@@ -13,7 +13,7 @@ class AuthController extends Controller
 {
     public function loginForm(): Response
     {
-        return response()->withView('auth/login');
+        return response()->withView('auth/login', ['error' => null, 'old_inputs' => []]);
     }
 
     public function login(Request $request): Response
@@ -25,12 +25,15 @@ class AuthController extends Controller
             return response()->redirect('profile');
         }
 
-        return response()->withView('auth/login', ['error' => 'Email or Password are incorrect', 'old_inputs' => $validator->data()]);
+        return response()->withView('auth/login', [
+             'error'      => 'Email or Password are incorrect',
+             'old_inputs' => $validator->data(),
+        ]);
     }
 
     public function registerForm(): Response
     {
-        return response()->withView('auth/register');
+        return response()->withView('auth/register', ['errors' => [], 'old_inputs' => []]);
     }
 
     public function register(Request $request): Response
@@ -42,16 +45,19 @@ class AuthController extends Controller
             $validated['password'] = password_hash($validated['password'], PASSWORD_DEFAULT);
         }
         if ($validated && User::create($validated)) {
+            auth()->login(User::query()->where('email', $validated['email'])->first());
             return response()->redirect('/');
         }
 
-        session()->setTemp('old_inputs', $validator->data());
-        session()->setTemp('input_errors', $validator->errors());
-        return response()->redirect('register', 400);
+        return response()->withView('auth/register', [
+             'errors'     => $validator->errors(),
+             'old_inputs' => $validator->data(),
+        ], 401);
     }
 
     public function logout(): Response
     {
+        auth()->logout();
         return response()->redirect('/');
     }
 

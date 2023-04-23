@@ -2,8 +2,8 @@
 @block(title)Login@endblock
 @block(content)
 <h1>Login</h1>
-<div class="invalid-feedback">{{$error ?? '' }}</div>
-<form action='' method='post'>
+<div class="invalid-feedback {{$error ? 'd-block' : 'd-none'}}">{{$error ?? '' }}</div>
+<form action='/login' method='post'>
     <input type="hidden" name="csrf_token" value="{{ session()->csrfToken() }}">
     <div class="form-group">
         <label for="email">Email</label>

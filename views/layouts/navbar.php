@@ -38,6 +38,7 @@
                             </li>
                             <li>
                                 <form action='/logout' method='post'>
+                                    <input type="hidden" name="csrf_token" value="{{ session()->csrfToken() }}">
                                     <div class="form-group">
                                         <div class="invalid-feedback"></div>
                                     </div>

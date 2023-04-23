@@ -15,7 +15,7 @@ interface Session
 
     public function getTemp(string $key): mixed;
 
-    public function set(string $key, mixed $value): void;
+    public function set(string $key, mixed $value, int $expireTime = null): void;
 
     public function get(string $key): mixed;
 

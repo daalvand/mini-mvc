@@ -58,7 +58,7 @@ abstract class Model implements ArrayAccess
     public static function create(array $attributes = []): static
     {
         $instance = new static($attributes);
-        static::query()->insert($attributes);
+        static::query()->insert($instance->attributes);
         return $instance;
     }
 
@@ -69,11 +69,7 @@ abstract class Model implements ArrayAccess
 
     public static function findOne(int $id): static|null
     {
-        $result = static::query()->where(static::primaryKey(), '=', $id)->get();
-        if ($result) {
-            return reset($result);
-        }
-        return null;
+        return static::query()->where(static::primaryKey(), '=', $id)->first();
     }
 
     private function fill(array $attributes): void

@@ -9,11 +9,11 @@ class RegisterValidator extends Validator
     public function rules(): array
     {
         return [
-            'firstname'       => ['required'],
-            'lastname'        => ['required'],
-            'email'           => ['required', 'email', 'unique:users,email'],
-            'password'        => ['required', 'min:8'],
-            'passwordConfirm' => ['required', 'same:password'],
+             'first_name'            => ['required'],
+             'last_name'             => ['required'],
+             'email'                 => ['required', 'email', 'unique:users,email'],
+             'password'              => ['required', 'min:8', 'confirmed'],
+             'password_confirmation' => ['required'],
         ];
     }
 }
