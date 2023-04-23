@@ -6,16 +6,37 @@ use Core\Contracts\Http\Request as RequestContract;
 
 class Request implements RequestContract
 {
-    private array $routeParams = [];
+    protected array $routeParams = [];
+    protected array $queryParams;
+    protected array $bodyParams;
+    protected array $cookies;
+    protected array $files;
+    protected array $server;
+    protected array $headers;
 
-    public function getMethod(): string
+    public function __construct(array $data = [])
     {
-        return strtolower($_SERVER['REQUEST_METHOD']);
+        $this->queryParams = $data['query'] ?? $_GET;
+        $this->bodyParams  = $data['body'] ?? $_POST;
+        $this->cookies     = $data['cookies'] ?? $_COOKIE;
+        $this->files       = $data['files'] ?? $_FILES;
+        $this->server      = $data['server'] ?? $_SERVER;
+        $this->headers     = $data['headers'] ?? getallheaders();
     }
 
-    public function getUrl(): string
+    public function all(): array
     {
-        $path     = $_SERVER['REQUEST_URI'];
+        return array_merge($this->queryParams, $this->bodyParams);
+    }
+
+    public function method(): string
+    {
+        return strtolower($this->server['REQUEST_METHOD']);
+    }
+
+    public function url(): string
+    {
+        $path     = $this->server['REQUEST_URI'];
         $position = strpos($path, '?');
         if ($position !== false) {
             $path = substr($path, 0, $position);
@@ -25,34 +46,27 @@ class Request implements RequestContract
 
     public function isGet(): bool
     {
-        return $this->getMethod() === 'get';
+        return $this->method() === 'get';
     }
 
     public function isPost(): bool
     {
-        return $this->getMethod() === 'post';
+        return $this->method() === 'post';
     }
 
-    public function getBody(): array
+    public function body(): array
     {
-        $data = [];
-        if ($this->isGet()) {
-            $data = $_GET;
-        }
-        if ($this->isPost()) {
-            $data = $_POST;
-        }
-        return $data;
+        return $this->bodyParams;
     }
 
     public function get(string $key, mixed $default = null): mixed
     {
-        return $_GET[$key] ?? $default;
+        return $this->queryParams[$key] ?? $default;
     }
 
     public function post(string $key, mixed $default = null): mixed
     {
-        return $_POST[$key] ?? $default;
+        return $this->bodyParams[$key] ?? $default;
     }
 
     public function setRouteParams(array $routeParams): void
@@ -60,33 +74,38 @@ class Request implements RequestContract
         $this->routeParams = $routeParams;
     }
 
-    public function getRouteParams(): array
+    public function routeParams(): array
     {
         return $this->routeParams;
     }
 
-    public function getRouteParam(string $key)
+    public function routeParam(string $key): mixed
     {
         return $this->routeParams[$key] ?? null;
     }
 
-    public function getCookies(): array
+    public function cookies(): array
     {
-        return $_COOKIE;
+        return $this->cookies;
     }
 
-    public function getCookie(string $key, mixed $default = null): mixed
+    public function cookie(string $key, mixed $default = null): mixed
     {
-        return $_COOKIE[$key] ?? $default;
+        return $this->cookies[$key] ?? $default;
     }
 
-    public function getHeaders(): array
+    public function headers(): array
     {
-        return getallheaders();
+        return $this->headers;
     }
 
-    public function getHeader(string $key, mixed $default = null): mixed
+    public function header(string $key, mixed $default = null): mixed
     {
-        return getallheaders()[$key] ?? $default;
+        return $this->headers[$key] ?? $default;
+    }
+
+    public function isSecure(): bool
+    {
+        return isset($this->server['HTTPS']) && $this->server['HTTPS'] === 'on';
     }
 }

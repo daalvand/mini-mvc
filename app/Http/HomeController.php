@@ -4,17 +4,19 @@ namespace App\Http;
 
 use App\Models\Item;
 use Core\Contracts\Http\Controller;
+use Core\Contracts\Http\Request;
+use Core\Contracts\Http\Response;
 
-class HomeController implements Controller
+class HomeController extends Controller
 {
-    public function index(): string
+    public function index(Request $request): Response
     {
-        $page     = (int)($_GET['page'] ?? 1);
-        $perPage  = (int)($_GET['per_page'] ?? 6);
+        $page     = (int)$request->get('page', 1);
+        $perPage  = (int)$request->get('per_page', 6);
         $items    = Item::query()->offset(($page - 1) * $perPage)->limit($perPage)->get();
         $total    = Item::query()->count();
         $lastPage = ceil($total / $perPage);
-        return render_view('home', [
+        return response()->withView('home', [
              'items' => $items,
              'meta'  => ['page' => $page, 'total' => $total, 'last_page' => $lastPage],
              'name'  => app()->getConfig('app_name'),
@@ -22,9 +24,9 @@ class HomeController implements Controller
     }
 
     //get cart list from cookie
-    public function cart(): string
+    public function cart(Request $request): Response
     {
-        $cart  = $_COOKIE['cartItemList'] ?? '{}';
+        $cart  = $request->cookie('cartItemList', '{}');
         $cart  = json_decode($cart, true);
         $cart  = array_filter($cart, static fn($quantity) => $quantity > 0);
         $items = [];
@@ -32,6 +34,6 @@ class HomeController implements Controller
             $items = Item::query()->whereIn('id', array_keys($cart))->limit(count($cart))->get();
         }
 
-        return render_view('cart-list', compact('items'));
+        return response()->withView('cart-list', ['items' => $items]);
     }
 }

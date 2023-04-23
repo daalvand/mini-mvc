@@ -4,6 +4,7 @@ namespace Core;
 
 
 use Core\Contracts\App as ContractApp;
+use Core\Contracts\Http\Response;
 use Core\Contracts\Router;
 use Exception;
 
@@ -30,7 +31,16 @@ class App implements ContractApp
      */
     public function run(): void
     {
-        echo $this->get(Router::class)->resolve();
+        $response = $this->get(Router::class)->resolve();
+        if ($response instanceof Response) {
+            $response->send();
+        } elseif (is_string($response)) {
+            echo $response;
+        } elseif (is_array($response) || is_object($response)) {
+            echo json_encode($response);
+        } else {
+            throw new Exception('Invalid response');
+        }
     }
 
     public function singleton(string $contract, callable|object|array $callable): void

@@ -13,7 +13,7 @@ class CsrfMiddleware implements Middleware
      */
     public function handle(Request $request): void
     {
-        $inputs       = request()->getBody();
+        $inputs       = request()->body();
         $inputValue   = $inputs['csrf_token'] ?? null;
         $sessionValue = session()->getTemp('csrf_token');
         if (!$inputValue || $inputValue !== $sessionValue) {

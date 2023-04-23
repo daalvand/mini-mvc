@@ -106,16 +106,16 @@ class Router implements RouterContract
 
     protected function getCallbackWithoutParams(): mixed
     {
-        $method             = $this->request->getMethod();
-        $url                = $this->trimUrl($this->request->getUrl());
+        $method             = $this->request->method();
+        $url                = $this->trimUrl($this->request->url());
         $this->currentRoute = $this->getRoutesOfMethod($method)[$url] ?? null;
         return $this->currentRoute['callback'] ?? null;
     }
 
     protected function getCallableThatHasParams(): string|array|callable|null
     {
-        $method = $this->request->getMethod();
-        $url    = $this->trimUrl($this->request->getUrl());
+        $method = $this->request->method();
+        $url    = $this->trimUrl($this->request->url());
         $routes = $this->getRoutesOfMethod($method);
         // Start iterating register routes
         foreach ($routes as $path => $route) {

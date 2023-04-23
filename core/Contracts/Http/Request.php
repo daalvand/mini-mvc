@@ -4,15 +4,17 @@ namespace Core\Contracts\Http;
 
 interface Request
 {
-    public function getMethod(): string;
+    public function all(): array;
 
-    public function getUrl(): string;
+    public function method(): string;
+
+    public function url(): string;
 
     public function isGet(): bool;
 
     public function isPost(): bool;
 
-    public function getBody(): array;
+    public function body(): array;
 
     public function get(string $key, mixed $default = null): mixed;
 
@@ -20,15 +22,17 @@ interface Request
 
     public function setRouteParams(array $routeParams): void;
 
-    public function getRouteParams(): array;
+    public function routeParams(): array;
 
-    public function getRouteParam(string $key);
+    public function routeParam(string $key): mixed;
 
-    public function getCookies(): array;
+    public function cookies(): array;
 
-     public function getCookie(string $key, mixed $default = null): mixed;
+    public function cookie(string $key, mixed $default = null): mixed;
 
-     public function getHeaders(): array;
+    public function headers(): array;
 
-     public function getHeader(string $key, mixed $default = null): mixed;
+    public function header(string $key, mixed $default = null): mixed;
+
+    public function isSecure(): bool;
 }

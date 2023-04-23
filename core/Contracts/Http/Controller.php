@@ -2,6 +2,6 @@
 
 namespace Core\Contracts\Http;
 
-interface Controller
+abstract class Controller
 {
 }

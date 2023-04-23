@@ -4,31 +4,19 @@ namespace Core\Contracts\Http;
 
 interface Response
 {
-    /**
-     * Set status code
-     *
-     * @param int $status
-     *
-     * @return Response
-     */
-    public function statusCode(int $status): static;
+    public function setHeader(string $header, mixed $value): static;
 
-    /**
-     * Redirect to another url
-     *
-     * @param $url
-     *
-     * @return void
-     */
-    public function redirect($url): void;
+    public function setContent(mixed $content): static;
 
-    /**
-     * Render view
-     *
-     * @param string $view
-     * @param array  $data
-     *
-     * @return string
-     */
-    public function render(string $view, array $data = []): string;
+    public function setStatusCode(int $statusCode): static;
+
+    public function send(): void;
+
+    public function redirect(string $url, int $statusCode = 302): static;
+
+    public function withJson(array $data, int $statusCode = 200): static;
+
+    public function withHtml(string $html, int $statusCode = 200): static;
+
+    public function withView(string $view, array $data = [], int $statusCode = 200): static;
 }

@@ -8,6 +8,7 @@ use Core\Contracts\DB\Database as DatabaseContract;
 use Core\Contracts\DB\Migrator as MigratorContract;
 use Core\Contracts\DB\Schema as SchemaContract;
 use Core\Contracts\Http\Request as RequestContract;
+use Core\Contracts\Http\Response as ResponseContract;
 use Core\Contracts\Router as RouterContract;
 use Core\Contracts\ServiceProvider;
 use Core\Contracts\Session as SessionContract;
@@ -17,6 +18,7 @@ use Core\DB\Migrator;
 use Core\DB\QueryBuilder;
 use Core\DB\Schema\Schema;
 use Core\Http\Request;
+use Core\Http\Response;
 
 class AppServiceProvider implements ServiceProvider
 {
@@ -67,6 +69,10 @@ class AppServiceProvider implements ServiceProvider
 
         $this->app->singleton(RequestContract::class, function () {
             return new Request();
+        });
+
+        $this->app->bind(ResponseContract::class, function () {
+            return new Response();
         });
     }
 }
