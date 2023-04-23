@@ -7,6 +7,7 @@ use Core\Contracts\AuthManager as AuthManagerContract;
 use Core\Contracts\DB\Database as DatabaseContract;
 use Core\Contracts\DB\Migrator as MigratorContract;
 use Core\Contracts\DB\Schema as SchemaContract;
+use Core\Contracts\Http\Request as RequestContract;
 use Core\Contracts\Router as RouterContract;
 use Core\Contracts\ServiceProvider;
 use Core\Contracts\Session as SessionContract;
@@ -15,6 +16,7 @@ use Core\DB\Database;
 use Core\DB\Migrator;
 use Core\DB\QueryBuilder;
 use Core\DB\Schema\Schema;
+use Core\Http\Request;
 
 class AppServiceProvider implements ServiceProvider
 {
@@ -25,9 +27,10 @@ class AppServiceProvider implements ServiceProvider
     public function register(): void
     {
         $this->app->singleton(RouterContract::class, function () {
-            return new Router();
+            return new Router(
+                 request: $this->app->get(RequestContract::class),
+            );
         });
-
 
         $this->app->singleton(DatabaseContract::class, function (App $app) {
             return new Database(config: $app->getConfig('db'));
@@ -60,6 +63,10 @@ class AppServiceProvider implements ServiceProvider
 
         $this->app->singleton(SchemaContract::class, function (App $app) {
             return new Schema(db: $app->get(DatabaseContract::class));
+        });
+
+        $this->app->singleton(RequestContract::class, function () {
+            return new Request();
         });
     }
 }
