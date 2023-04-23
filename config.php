@@ -14,7 +14,8 @@ return [
           'password' => $_ENV['DB_PASSWORD'],
      ],
      'views'    => [
-          'path' => 'views',
+          'path'       => 'views',
+          'cache_path' => 'storage/cache/views',
      ],
      'auth'     => [
           'user' => User::class,
