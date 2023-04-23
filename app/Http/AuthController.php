@@ -44,8 +44,8 @@ class AuthController extends Controller
         if ($validated) {
             $validated['password'] = password_hash($validated['password'], PASSWORD_DEFAULT);
         }
-        if ($validated && User::create($validated)) {
-            auth()->login(User::query()->where('email', $validated['email'])->first());
+        if ($validated && $user = User::create($validated)) {
+            auth()->login($user);
             return response()->redirect('/');
         }
 
