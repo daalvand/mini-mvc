@@ -2,31 +2,30 @@
 
 namespace Core\Exceptions;
 
-use ErrorException;
+use Monolog\Handler\StreamHandler;
+use Monolog\Level;
+use Monolog\Logger;
 use Throwable;
 
 class Handler
 {
-
-    /**
-     * Error handler. Convert all errors to Exceptions by throwing an ErrorException.
-     *
-     * @param int    $level   Error level
-     * @param string $message Error message
-     * @param string $file    Filename the error raised in
-     * @param int    $line    Line number in the file
-     *
-     * @return void
-     * @throws ErrorException
-     */
-    public static function errorHandler(int $level, string $message, string $file, int $line): void
+    public static function errorHandler(int $errNo, string $errStr, string $errFile, int $errLine, array $errContext): never
     {
-        if (error_reporting() !== 0) {  // to keep the @ operator working
-            throw new ErrorException($message, 0, $level, $file, $line);
-        }
+        $logPath = 'storage/logs/' . date('Y-m-d') . '.log';
+        // Log the error using Monolog
+        $log = new Logger('error');
+        $log->pushHandler(new StreamHandler($logPath, Level::Error));
+        $log->error($errStr, [
+            'file' => $errFile,
+            'line' => $errLine,
+            'context' => json_encode($errContext),
+            'code' => $errNo,
+        ]);
+        echo "<h1>500 - server error</h1>";
+        exit;
     }
 
-    public static function exceptionHandler(Throwable $e): void
+    public static function exceptionHandler(Throwable $e): never
     {
         http_response_code(500);
         if ($e instanceof NotFoundException) {
@@ -36,14 +35,18 @@ class Handler
             http_response_code(403);
             echo '<h1>You doo\'t have permission on this page!</h1>';
         } else {
-            $log = 'storage/logs/' . date('Y-m-d') . '.log';
-            ini_set('error_log', $log);
-            $message = "Uncaught exception: '" . get_class($e) . "'";
-            $message .= " with message '" . $e->getMessage() . "'";
-            $message .= "\nStack trace: " . $e->getTraceAsString();
-            $message .= "\nThrown in '" . $e->getFile() . "' on line " . $e->getLine();
-            error_log($message);
+            $logPath = 'storage/logs/' . date('Y-m-d') . '.log';
+            $log = new Logger('app');
+            $log->pushHandler(new StreamHandler($logPath, Level::Warning));
+            $log->error('ERROR: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => json_encode($e->getTrace()),
+                'code' => $e->getCode(),
+                'exception' => get_class($e),
+            ]);
             echo "<h1>500 - server error</h1>";
         }
+        exit;
     }
 }
