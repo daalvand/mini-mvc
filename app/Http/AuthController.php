@@ -28,7 +28,7 @@ class AuthController extends Controller
         return response()->withView('auth/login', [
              'error'      => 'Email or Password are incorrect',
              'old_inputs' => $validator->data(),
-        ]);
+        ], 401);
     }
 
     public function registerForm(): Response
