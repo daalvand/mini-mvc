@@ -26,6 +26,6 @@ class ProfileController extends Controller
             $items = Item::query()->whereIn('id', array_keys($cart))->limit(count($cart))->get();
         }
 
-        return response()->withView('profile/cart-list', ['items' => $items]);
+        return response()->withView('profile/cart-list', ['items' => $items, 'removeCartItem' => true]);
     }
 }

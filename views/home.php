@@ -12,7 +12,6 @@
             @include(layouts/cart_item.php)
         <?php endforeach; ?>
     </div>
-
     @include(layouts/pagination.php)
 </div>
 @include(layouts/cart_items_scripts.php)
