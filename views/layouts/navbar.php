@@ -16,18 +16,42 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#">About</a>
                 </li>
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/login">Login</a>
+                <?php if (auth()->isGuest()): ?>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/login">Login</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/register">Register</a>
+                        </li>
+                    </ul>
+                <?php else: ?>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            {{ auth()->getUser()->fullName() }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <form action='/logout' method='post'>
+                                    <div class="form-group">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <button class="dropdown-item" type="submit">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
                     </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/register">Register</a>
-                    </li>
-                </ul>
+                <?php endif; ?>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/cart-list" id="nav-cart">Cart</a>
-                    <span id="nav-cart-counter"></span>
+                    <a class="nav-link d-inline-block" href="/cart-list" id="nav-cart">
+                        Cart <span class="badge bg-danger" id="nav-cart-counter"></span>
+                    </a>
                 </li>
             </ul>
         </div>

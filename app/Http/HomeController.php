@@ -17,9 +17,9 @@ class HomeController extends Controller
         $total    = Item::query()->count();
         $lastPage = ceil($total / $perPage);
         return response()->withView('home', [
-             'items' => $items,
-             'meta'  => ['page' => $page, 'total' => $total, 'last_page' => $lastPage],
-             'name'  => app()->getConfig('app_name'),
+             'items'      => $items,
+             'pagination' => ['page' => $page, 'total' => $total, 'last_page' => $lastPage],
+             'name'       => app()->getConfig('app_name'),
         ]);
     }
 

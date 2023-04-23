@@ -9,7 +9,6 @@ class View implements ViewContract
 {
     protected array  $blocks = [];
     protected string $viewPath;
-    protected mixed  $data;
     protected string $cachePath;
     protected bool   $cacheable;
 

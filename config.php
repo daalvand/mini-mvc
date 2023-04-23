@@ -16,8 +16,12 @@ return [
      'views'    => [
           'path'       => 'views',
           'cache_path' => 'storage/cache/views',
+          'cacheable'  => $_ENV['VIEW_CACHEABLE'] === 'true',
      ],
      'auth'     => [
           'user' => User::class,
+     ],
+     'log'      => [
+          'path' => 'storage/logs',
      ],
 ];
