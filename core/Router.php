@@ -3,6 +3,8 @@
 namespace Core;
 
 use Core\Contracts\Http\Controller;
+use Core\Contracts\Http\Middleware;
+use Core\Contracts\Http\Request;
 use Core\Contracts\Router as RouterContract;
 use Core\Exceptions\NotFoundException;
 use RuntimeException;
@@ -12,7 +14,8 @@ class Router implements RouterContract
     protected array      $routes       = [];
     protected array|null $currentRoute = null;
 
-    public function __construct() {
+    public function __construct(protected Request $request)
+    {
     }
 
     public function get(
@@ -76,12 +79,13 @@ class Router implements RouterContract
         if (!$callback) {
             throw new NotFoundException();
         }
-
-        if(is_array($callback)) {
+        if (is_array($callback)) {
             $callback = $this->resolveController($callback);
         }
 
-        return $callback();
+        $this->executeMiddlewares();
+
+        return $callback($this->request);
     }
 
     protected function getCallback(): string|array|callable|null
@@ -92,7 +96,7 @@ class Router implements RouterContract
             return $callback;
         }
 
-        return null;
+        return $this->getCallableThatHasParams();
     }
 
     protected function trimUrl(string $url): string
@@ -102,30 +106,70 @@ class Router implements RouterContract
 
     protected function getCallbackWithoutParams(): mixed
     {
-        $method             = strtolower($_SERVER['REQUEST_METHOD']);// todo implement request class
-        $url                = $this->trimUrl($this->getUrl());// todo implement request class
+        $method             = $this->request->getMethod();
+        $url                = $this->trimUrl($this->request->getUrl());
         $this->currentRoute = $this->getRoutesOfMethod($method)[$url] ?? null;
         return $this->currentRoute['callback'] ?? null;
     }
 
-    private function getUrl(): string
+    protected function getCallableThatHasParams(): string|array|callable|null
     {
-        $path     = $_SERVER['REQUEST_URI'];
-        $position = strpos($path, '?');
-        if ($position !== false) {
-            $path = substr($path, 0, $position);
+        $method = $this->request->getMethod();
+        $url    = $this->trimUrl($this->request->getUrl());
+        $routes = $this->getRoutesOfMethod($method);
+        // Start iterating register routes
+        foreach ($routes as $path => $route) {
+            $conditions = $route['conditions'];
+
+            //-----------match by regex------------------------
+            preg_match_all("/{(\w+)}/", $path, $paramsMatches);
+            $braceParams     = $paramsMatches[0] ?? [];
+            $params          = $paramsMatches[1] ?? [];
+            $regexConditions = [];
+            foreach ($params as $param) {
+                $regexConditions[$param] = "(?<$param>" . ($conditions[$param] ?? "\w+") . ")";
+            }
+            $routeRegex = str_replace("/", "\/", $path);
+            $routeRegex = "/^" . str_replace($braceParams, array_values($regexConditions), $routeRegex) . "$/";
+
+            preg_match_all($routeRegex, $url, $routeMatches);
+            //-----------end match by regex------------------------
+
+            if ($routeMatches[0]) {
+                $routeParams = [];
+                foreach ($params as $param) {
+                    $routeParams[$param] = reset($routeMatches[$param]);
+                }
+                $this->request->setRouteParams($routeParams);
+                $this->currentRoute = $route;
+                return $route['callback'];
+            }
         }
-        return $path;
+        return null;
     }
 
-    private function resolveController(array $callback): array
+    protected function resolveController(array $callback): array
     {
         $class = $callback[0];
         if (!class_exists($class) || !is_subclass_of($class, Controller::class)) {
             throw new RuntimeException("Invalid Controller!");
         }
 
-        $callback[0] = new $class;
+        // callback[0] is controller class name
+        // callback[1] is current method name
+        $callback[0] = new $class();
         return $callback;
+    }
+
+    protected function executeMiddlewares(): void
+    {
+        $middlewares = $this->currentRoute['middlewares'] ?? [];
+        foreach ($middlewares as $middleware) {
+            if (!class_exists($middleware) || !is_subclass_of($middleware, Middleware::class)) {
+                throw new RuntimeException("Invalid Middleware!");
+            }
+            $middleware = new $middleware;
+            $middleware->handle($this->request);
+        }
     }
 }
