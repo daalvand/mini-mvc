@@ -72,3 +72,8 @@ function auth(): AuthManager
 {
     return app()->get(AuthManager::class);
 }
+
+function csrf_token(): string
+{
+    return session()->csrfToken();
+}

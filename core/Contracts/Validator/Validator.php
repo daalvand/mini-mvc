@@ -80,8 +80,8 @@ abstract class Validator
     {
         $exploded = explode(':', $rule);
         $baseName = array_shift($exploded);
-        $baseName = ucfirst(strtolower($baseName));
-        $clasName = __NAMESPACE__ . "\\Rules\\$baseName";
+        $baseName = strtolower($baseName);
+        $clasName = app()->getConfig('validator')['rules'][$baseName];
         $params   = [];
         if($exploded){
             $params = explode(',', end($exploded));

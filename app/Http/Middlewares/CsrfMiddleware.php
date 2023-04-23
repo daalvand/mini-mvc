@@ -3,7 +3,7 @@
 namespace App\Http\Middlewares;
 
 use Core\Contracts\Http\Request;
-use Core\Contracts\Middleware;
+use Core\Contracts\Http\Middleware;
 use Core\Exceptions\ForbiddenException;
 
 class CsrfMiddleware implements Middleware
@@ -13,9 +13,8 @@ class CsrfMiddleware implements Middleware
      */
     public function handle(Request $request): void
     {
-        $inputs       = request()->body();
-        $inputValue   = $inputs['csrf_token'] ?? null;
-        $sessionValue = session()->getTemp('csrf_token');
+        $inputValue   = request()->post('csrf_token');
+        $sessionValue = session()->csrfToken();
         if (!$inputValue || $inputValue !== $sessionValue) {
             throw new ForbiddenException("Invalid csrf token!");
         }

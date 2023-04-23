@@ -20,4 +20,6 @@ interface Session
     public function get(string $key): mixed;
 
     public function remove(string $key): void;
+
+    public function csrfToken(): string;
 }

@@ -3,6 +3,7 @@
 namespace Core;
 
 use Core\Contracts\Session as SessionContract;
+use Exception;
 
 class Session implements SessionContract
 {
@@ -11,7 +12,7 @@ class Session implements SessionContract
     public function __construct()
     {
         session_start();
-        $this->setRemoveForTempData();
+        $this->setRemoveTrueForTempData();
     }
 
     public function setTemp(string $key, mixed $value): void
@@ -58,12 +59,25 @@ class Session implements SessionContract
         $_SESSION[self::TEMP_DATA] = $tempData;
     }
 
-    protected function setRemoveForTempData(): void
+    protected function setRemoveTrueForTempData(): void
     {
         $tempData = $_SESSION[self::TEMP_DATA] ?? [];
         foreach ($tempData as $key => $tempDatum) {
             $tempData[$key]['remove'] = true;
         }
         $_SESSION[self::TEMP_DATA] = $tempData;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function csrfToken(): string
+    {
+        $token = $this->getTemp('csrf_token');
+        if (!$token) {
+            $token = bin2hex(random_bytes(32));
+            $this->setTemp('csrf_token', $token);
+        }
+        return $token;
     }
 }

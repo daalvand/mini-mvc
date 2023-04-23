@@ -4,7 +4,7 @@ namespace Core\Contracts\Validator;
 
 abstract class Rule
 {
-    public function __construct(
+    final public function __construct(
         protected Validator $validator,
         protected string    $attribute,
         protected mixed     $value,

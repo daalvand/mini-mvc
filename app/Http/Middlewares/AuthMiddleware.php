@@ -6,7 +6,7 @@ use Core\App;
 use Core\Contracts\AuthManager;
 use Core\Contracts\Http\Request;
 use Core\Contracts\Http\Response;
-use Core\Contracts\Middleware;
+use Core\Contracts\Http\Middleware;
 
 class AuthMiddleware implements Middleware
 {

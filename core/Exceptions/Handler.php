@@ -27,23 +27,11 @@ class Handler
     public static function exceptionHandler(Throwable $e): never
     {
         http_response_code(500);
-        if ($e instanceof NotFoundException) {
-            http_response_code(404);
-            echo '<h1>Not Found Error</h1>';
-        } elseif ($e instanceof ForbiddenException) {
-            http_response_code(403);
-            echo '<h1>You doo\'t have permission on this page!</h1>';
+        if ($e instanceof NotFoundException || $e instanceof ForbiddenException) {
+            http_response_code($e->getCode());
+            echo "<h1>{$e->getMessage()}</h1>";
         } else {
-            $logPath = self::getLogPath();
-            $log = new Logger('app');
-            $log->pushHandler(new StreamHandler($logPath, Level::Warning));
-            $log->error('ERROR: ' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTrace(),
-                'code' => $e->getCode(),
-                'exception' => get_class($e),
-            ]);
+            self::logException($e);
             echo "<h1>500 - server error</h1>";
         }
         exit;
@@ -59,5 +47,20 @@ class Handler
             $logPath = __DIR__ . '/../../storage/logs/' . date('Y-m-d') . '.log';
         }
         return $logPath;
+    }
+
+
+    public static function logException(Throwable $e, Level $level = Level::Error): void
+    {
+        $logPath = self::getLogPath();
+        $log = new Logger('app');
+        $log->pushHandler(new StreamHandler($logPath, $level));
+        $log->log($level, $e->getMessage(), [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTrace(),
+            'code' => $e->getCode(),
+            'exception' => get_class($e),
+        ]);
     }
 }

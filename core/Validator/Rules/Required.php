@@ -8,7 +8,7 @@ class Required extends Rule
 {
     protected function check(): bool
     {
-        return $this->value;
+        return !empty($this->value);
     }
 
     protected function message(): string

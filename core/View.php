@@ -175,4 +175,9 @@ class View implements ViewContract
             unlink($file);
         }
     }
+
+    public function share(string $string, string $token): void
+    {
+        
+    }
 }

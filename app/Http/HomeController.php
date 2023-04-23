@@ -22,18 +22,4 @@ class HomeController extends Controller
              'name'       => app()->getConfig('app_name'),
         ]);
     }
-
-    //get cart list from cookie
-    public function cart(Request $request): Response
-    {
-        $cart  = $request->cookie('cartItemList', '{}');
-        $cart  = json_decode($cart, true);
-        $cart  = array_filter($cart, static fn($quantity) => $quantity > 0);
-        $items = [];
-        if ($cart) {
-            $items = Item::query()->whereIn('id', array_keys($cart))->limit(count($cart))->get();
-        }
-
-        return response()->withView('cart-list', ['items' => $items]);
-    }
 }
