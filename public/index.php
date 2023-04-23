@@ -2,8 +2,12 @@
 
 
 use Core\Contracts\App;
+use Core\Exceptions\Handler;
 
-/** @var App $app */
-$app = require __DIR__ . '/../bootstrap/app.php';
-
-$app->run();
+try {
+    /** @var App $app */
+    $app = require __DIR__ . '/../bootstrap/app.php';
+    $app->run();
+} catch (Throwable $e) {
+    Handler::exceptionHandler($e);
+}

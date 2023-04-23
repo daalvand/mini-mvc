@@ -9,16 +9,15 @@ use Throwable;
 
 class Handler
 {
-    public static function errorHandler(int $errNo, string $errStr, string $errFile, int $errLine, array $errContext): never
+    public static function errorHandler(int $errNo, string $errStr, string $errFile, int $errLine): never
     {
-        $logPath = 'storage/logs/' . date('Y-m-d') . '.log';
+        $logPath = self::getLogPath();
         // Log the error using Monolog
         $log = new Logger('error');
         $log->pushHandler(new StreamHandler($logPath, Level::Error));
         $log->error($errStr, [
             'file' => $errFile,
             'line' => $errLine,
-            'context' => json_encode($errContext),
             'code' => $errNo,
         ]);
         echo "<h1>500 - server error</h1>";
@@ -35,18 +34,30 @@ class Handler
             http_response_code(403);
             echo '<h1>You doo\'t have permission on this page!</h1>';
         } else {
-            $logPath = 'storage/logs/' . date('Y-m-d') . '.log';
+            $logPath = self::getLogPath();
             $log = new Logger('app');
             $log->pushHandler(new StreamHandler($logPath, Level::Warning));
             $log->error('ERROR: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => json_encode($e->getTrace()),
+                'trace' => $e->getTrace(),
                 'code' => $e->getCode(),
                 'exception' => get_class($e),
             ]);
             echo "<h1>500 - server error</h1>";
         }
         exit;
+    }
+
+    protected static function getLogPath(): string
+    {
+        try {
+            $config = app()->getConfig('log');
+            $baseBase = app()->basePath();
+            $logPath = merge_paths($baseBase, $config['path'], date('Y-m-d') . '.log');
+        } catch (Throwable) {
+            $logPath = __DIR__ . '/../../storage/logs/' . date('Y-m-d') . '.log';
+        }
+        return $logPath;
     }
 }
