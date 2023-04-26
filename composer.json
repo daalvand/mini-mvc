@@ -26,6 +26,7 @@
         "monolog/monolog": "^3.3"
     },
     "require-dev": {
+        "ext-xdebug": "*",
         "symfony/var-dumper": "^6.1",
         "phpunit/phpunit": "10.1.2"
     }

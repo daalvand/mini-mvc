@@ -3,14 +3,16 @@
 namespace Core\Http;
 
 use Core\Contracts\Http\Response as ResponseContract;
+use Core\Contracts\View;
 
 class Response implements ResponseContract
 {
-    public function __construct(
-         protected mixed $content = null,
-         protected int $statusCode = 200,
-         protected array $headers = []
-    ) {
+    protected mixed $content    = null;
+    protected int   $statusCode = 200;
+    protected array $headers    = [];
+
+    public function __construct(protected View $view)
+    {
     }
 
     public function setHeader(string $header, mixed $value): static
@@ -75,8 +77,29 @@ class Response implements ResponseContract
 
     public function withView(string $view, array $data = [], int $statusCode = 200): static
     {
-        $content = render_view($view, $data);
+        $content = $this->view->view($view, $data);
         $this->withHtml($content, $statusCode);
         return $this;
+    }
+
+    public function content(): mixed
+    {
+        return $this->content;
+    }
+
+    public function statusCode(): int
+    {
+        return $this->statusCode;
+    }
+
+    public function headers(): array
+    {
+        return $this->headers;
+    }
+
+
+    public function header(string $key): mixed
+    {
+        return $this->headers[$key] ?? null;
     }
 }

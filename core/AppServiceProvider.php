@@ -71,8 +71,8 @@ class AppServiceProvider implements ServiceProvider
             return new Request();
         });
 
-        $this->app->bind(ResponseContract::class, function () {
-            return new Response();
+        $this->app->bind(ResponseContract::class, function (App $app) {
+            return new Response($app->get(ViewContract::class));
         });
     }
 }
