@@ -6,7 +6,6 @@ use Core\Validator\Rules\Email;
 use Core\Validator\Rules\Max;
 use Core\Validator\Rules\Min;
 use Core\Validator\Rules\Required;
-use Core\Validator\Rules\Same;
 use Core\Validator\Rules\Unique;
 use Dotenv\Dotenv;
 
