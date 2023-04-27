@@ -77,7 +77,7 @@ class Response implements ResponseContract
 
     public function withView(string $view, array $data = [], int $statusCode = 200): static
     {
-        $content = $this->view->view($view, $data);
+        $content = $this->view->render($view, $data);
         $this->withHtml($content, $statusCode);
         return $this;
     }

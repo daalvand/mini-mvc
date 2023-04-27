@@ -14,14 +14,13 @@ class View implements ViewContract
 
     public function __construct(array $config, string $basePath)
     {
-        $this->cachePath = merge_paths($basePath, $config['cache_path']) . '/';
-        $this->viewPath  = merge_paths($basePath, $config['path']) . '/';
+        $this->cachePath = merge_paths($basePath, $config['cache_path']);
+        $this->viewPath  = merge_paths($basePath, $config['path']);
         $this->cacheable = $config['cacheable'] ?? false;
     }
 
-    public function view(string $view, array $data = []): bool|string
+    public function render(string $view, array $data = []): bool|string
     {
-        $view     = $this->getViewFullPath($view);
         $compiled = $this->readFromCache($view);
         if (!$compiled) {
             $compiled = $this->compile($view);
@@ -32,6 +31,7 @@ class View implements ViewContract
 
     protected function readFromCache(string $view): string|null
     {
+        $view       = $this->addExtension($view);
         $cachedFile = $this->getCacheFileName($view);
         if (
              !$this->cacheable ||
@@ -53,7 +53,7 @@ class View implements ViewContract
         ) {
             throw new RuntimeException("Directory $concurrentDirectory was not created");
         }
-        return $this->cachePath . str_replace('/', '_', $view);
+        return merge_paths($this->cachePath, str_replace('/', '_', $view));
     }
 
     protected function writeToCache(string $view, string $compiled): void
@@ -84,14 +84,17 @@ class View implements ViewContract
      */
     protected function includeFiles(string $view): string
     {
+        $view     = $this->addExtension($view);
         $pattern  = '~@(extends|include)\((.*)\)~i';
-        $contents = file_get_contents($this->viewPath . $view);
-        preg_match_all($pattern, $contents, $matches, PREG_SET_ORDER);
+        $fullPath = merge_paths($this->viewPath, $view);
+        $content  = file_get_contents($fullPath);
+        preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
         foreach ($matches as $value) {
+            $value[2]     = $this->addExtension($value[2]);
             $includedCode = $this->includeFiles($value[2]);
-            $contents     = str_replace($value[0], $includedCode, $contents);
+            $content      = str_replace($value[0], $includedCode, $content);
         }
-        return preg_replace($pattern, '', $contents);
+        return preg_replace($pattern, '', $content);
     }
 
     /**
@@ -154,7 +157,7 @@ class View implements ViewContract
         return preg_replace('~{!!\s*(.+?)\s*!!}~is', '<?php echo $1 ?>', $view);
     }
 
-    protected function getViewFullPath(string $view): string
+    protected function addExtension(string $view): string
     {
         return str_ends_with($view, '.php') ? $view : "$view.php";
     }
@@ -174,10 +177,5 @@ class View implements ViewContract
         foreach (glob($this->cachePath . '*') as $file) {
             unlink($file);
         }
-    }
-
-    public function share(string $string, string $token): void
-    {
-        
     }
 }

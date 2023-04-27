@@ -10,6 +10,9 @@ use Tests\TestCase;
 
 class ResponseTest extends TestCase
 {
+    /**
+     * @throws Exception
+     */
     public function testSend(): void
     {
         $content    = ['foo' => 'bar'];
@@ -31,6 +34,9 @@ class ResponseTest extends TestCase
         $this->assertContains('Content-Type: application/json', xdebug_get_headers());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testRedirect(): void
     {
         $url        = 'https://example.com';
@@ -44,6 +50,9 @@ class ResponseTest extends TestCase
         $this->assertEquals($statusCode, $response->statusCode());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testWithJson(): void
     {
         $data       = ['foo' => 'bar'];
@@ -58,6 +67,9 @@ class ResponseTest extends TestCase
         $this->assertEquals($statusCode, $response->statusCode());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testWithHtml(): void
     {
         $html       = '<html lang="en"><body>hello world</body></html>';
@@ -75,11 +87,11 @@ class ResponseTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testWithView()
+    public function testWithView(): void
     {
         $viewMock = $this->createMock(View::class);
         $viewMock->expects($this->once())
-                 ->method('view')
+                 ->method('render')
                  ->with('test-view', ['foo' => 'bar'])
                  ->willReturn('<h1>Hello, World!</h1>');
 
