@@ -10,11 +10,7 @@ class Unique extends Rule
     {
         $table      = $this->params[0];
         $uniqueAttr = $this->params[1];
-        $db         = database();
-        $statement  = $db->prepare("SELECT * FROM $table WHERE $uniqueAttr = :$uniqueAttr");
-        $statement->bindValue(":$uniqueAttr", $this->value);
-        $statement->execute();
-        $record = $statement->fetchObject();
+        $record     = query_builder()->table($table)->where($uniqueAttr, $this->value)->first();
         return !$record;
     }
 

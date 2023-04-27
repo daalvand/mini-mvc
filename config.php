@@ -5,7 +5,9 @@ use Core\Validator\Rules\Confirmed;
 use Core\Validator\Rules\Email;
 use Core\Validator\Rules\Max;
 use Core\Validator\Rules\Min;
+use Core\Validator\Rules\Password;
 use Core\Validator\Rules\Required;
+use Core\Validator\Rules\StringRule;
 use Core\Validator\Rules\Unique;
 use Dotenv\Dotenv;
 
@@ -38,6 +40,8 @@ return [
                'min'       => Min::class,
                'required'  => Required::class,
                'unique'    => Unique::class,
+               'string'    => StringRule::class,
+               'password'  => Password::class,
           ],
      ],
      'csrf'      => [

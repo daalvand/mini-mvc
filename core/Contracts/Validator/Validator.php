@@ -4,9 +4,15 @@ namespace Core\Contracts\Validator;
 
 abstract class Validator
 {
-    protected array $errors = [];
-    protected array $data = [];
+    protected array $errors    = [];
+    protected array $data      = [];
     protected array $validated = [];
+    protected array $configs;
+
+    public function __construct()
+    {
+        $this->configs = app()->getConfig('validator');
+    }
 
     abstract public function rules(): array;
 
@@ -81,9 +87,9 @@ abstract class Validator
         $exploded = explode(':', $rule);
         $baseName = array_shift($exploded);
         $baseName = strtolower($baseName);
-        $clasName = app()->getConfig('validator')['rules'][$baseName];
+        $clasName = $this->configs['rules'][$baseName];
         $params   = [];
-        if($exploded){
+        if ($exploded) {
             $params = explode(',', end($exploded));
         }
         return new $clasName($this, $attribute, $value, $params);

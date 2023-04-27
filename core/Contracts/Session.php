@@ -6,6 +6,7 @@ interface Session
 {
     /**
      * temp data for something like flash messages or csrf token and so on
+     *
      * @param string $key
      * @param mixed  $value
      *
@@ -22,4 +23,8 @@ interface Session
     public function remove(string $key): void;
 
     public function csrfToken(): string;
+
+    public function regenerate(): void;
+
+    public function destroy(): void;
 }

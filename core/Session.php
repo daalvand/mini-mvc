@@ -105,4 +105,14 @@ class Session implements SessionContract
             }
         }
     }
+
+    public function regenerate(): void
+    {
+        session_regenerate_id();
+    }
+
+    public function destroy(): void
+    {
+        session_destroy();
+    }
 }
