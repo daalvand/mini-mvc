@@ -6,6 +6,7 @@ use Core\Contracts\App;
 use Core\Contracts\AuthManager as AuthManagerContract;
 use Core\Contracts\DB\Database as DatabaseContract;
 use Core\Contracts\DB\Migrator as MigratorContract;
+use Core\Contracts\DB\QueryBuilder as QueryBuilderContract;
 use Core\Contracts\DB\Schema as SchemaContract;
 use Core\Contracts\Http\Request as RequestContract;
 use Core\Contracts\Http\Response as ResponseContract;
@@ -73,6 +74,10 @@ class AppServiceProvider implements ServiceProvider
 
         $this->app->bind(ResponseContract::class, function (App $app) {
             return new Response($app->get(ViewContract::class));
+        });
+
+        $this->app->bind(QueryBuilderContract::class, function (App $app) {
+            return new QueryBuilder($app->get(DatabaseContract::class));
         });
     }
 }

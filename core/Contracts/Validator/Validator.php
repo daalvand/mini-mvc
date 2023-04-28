@@ -16,9 +16,10 @@ abstract class Validator
 
     abstract public function rules(): array;
 
-    public function loadData($data): void
+    public function loadData($data): static
     {
         $this->data = $data;
+        return $this;
     }
 
     public function validate(): bool|array
@@ -93,5 +94,10 @@ abstract class Validator
             $params = explode(',', end($exploded));
         }
         return new $clasName($this, $attribute, $value, $params);
+    }
+
+    public function passes(): bool
+    {
+        return empty($this->errors);
     }
 }

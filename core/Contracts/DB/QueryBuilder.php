@@ -33,4 +33,20 @@ interface QueryBuilder
     public function update(array $data): bool;
 
     public function count(): int;
+
+    public function exists(): bool;
+
+    public function sum(string $column): int|float;
+
+    public function avg(string $column): int|float;
+
+    public function min(string $column): int|float;
+
+    public function max(string $column): int|float;
+
+    public function aggregate(string $column, string $function): mixed;
+
+    public function truncate(): bool;
+
+    public function raw(string $query, array $bindings = []): static;
 }

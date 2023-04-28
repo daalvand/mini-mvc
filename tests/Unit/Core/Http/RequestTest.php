@@ -11,6 +11,7 @@ class RequestTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->request = new Request([
              'query'   => ['name' => 'John', 'age' => 30],
              'body'    => ['email' => 'john@example.com'],

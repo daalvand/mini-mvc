@@ -104,7 +104,7 @@ class QueryBuilder implements QueryBuilderContract
             $sql .= " OFFSET $this->offset";
         }
 
-        $stmt = $this->database->pdo()->prepare($sql);
+        $stmt = $this->database->prepare($sql);
         $stmt->execute(array_merge($this->values, $this->params));
         $this->reset();
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -133,7 +133,7 @@ class QueryBuilder implements QueryBuilderContract
         }
         $values = implode('),(', $values);
         $sql    = "INSERT INTO $this->table (" . implode(',', $columns) . ") VALUES ($values)";
-        $stmt   = $this->database->pdo()->prepare($sql);
+        $stmt   = $this->database->prepare($sql);
         $stmt->execute($this->values);
         $this->reset();
         return $stmt->rowCount() > 0;
@@ -145,7 +145,7 @@ class QueryBuilder implements QueryBuilderContract
         if (!empty($this->wheres)) {
             $this->parseWheres();
         }
-        $stmt = $this->database->pdo()->prepare($this->sql);
+        $stmt = $this->database->prepare($this->sql);
         $stmt->execute(array_merge($this->values, $this->params));
         $this->reset();
         return $stmt->rowCount() > 0;
@@ -168,7 +168,7 @@ class QueryBuilder implements QueryBuilderContract
             $this->parseWheres();
         }
 
-        $stmt = $this->database->pdo()->prepare($this->sql);
+        $stmt = $this->database->prepare($this->sql);
         $stmt->execute(array_merge($values, $this->values, $this->params));
         $this->reset();
 
@@ -181,6 +181,7 @@ class QueryBuilder implements QueryBuilderContract
         $result       = $this->get();
         return $result[0]['count'] ?? 0;
     }
+
 
     private function parseWheres(): void
     {
@@ -214,5 +215,60 @@ class QueryBuilder implements QueryBuilderContract
         $this->limit   = null;
         $this->offset  = null;
         $this->sql     = '';
+    }
+
+    public function exists(): bool
+    {
+        return $this->count() > 0;
+    }
+
+    public function sum(string $column): int|float
+    {
+        $result = $this->aggregate('SUM', $column);
+        return $result ? (float)$result[0]['sum'] : 0;
+    }
+
+    public function avg(string $column): int|float
+    {
+        $result = $this->aggregate('AVG', $column);
+        return $result ? (float)$result[0]['avg'] : 0;
+    }
+
+    public function min(string $column): int|float
+    {
+        $result = $this->aggregate('MIN', $column);
+        return $result ? (float)$result[0]['min'] : 0;
+    }
+
+    public function max(string $column): int|float
+    {
+        $result = $this->aggregate('MAX', $column);
+        return $result ? (float)$result[0]['max'] : 0;
+    }
+
+    public function truncate(): bool
+    {
+        $sql  = "TRUNCATE TABLE $this->table";
+        $stmt = $this->database->prepare($sql);
+        $stmt->execute();
+        return true;
+    }
+
+    public function raw(string $query, array $bindings = []): static
+    {
+        $this->reset();
+        $this->sql    = $query;
+        $this->values = $bindings;
+        return $this;
+    }
+
+    public function aggregate(string $column, string $function): mixed
+    {
+        $this->select = "$function($column) as aggregate";
+        $stmt         = $this->database->prepare("SELECT $this->select FROM $this->table $this->sql");
+        $stmt->execute(array_merge($this->values, $this->params));
+        $this->reset();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['aggregate'];
     }
 }

@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Core\Contracts\App;
+use Core\Contracts\Session;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 
 class TestCase  extends PHPUnitTestCase
@@ -17,7 +18,7 @@ class TestCase  extends PHPUnitTestCase
 
      protected function tearDown(): void
      {
-         session()->destroy();
+         $this->app->get(Session::class)->destroy();
           parent::tearDown();
      }
 

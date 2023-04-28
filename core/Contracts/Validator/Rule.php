@@ -19,7 +19,7 @@ abstract class Rule
         }
     }
 
-    abstract protected function check(): bool;
+    abstract public function check(): bool;
 
-    abstract protected function message(): string;
+    abstract public function message(): string;
 }
