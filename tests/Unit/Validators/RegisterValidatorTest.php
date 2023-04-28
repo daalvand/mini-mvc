@@ -58,7 +58,7 @@ class RegisterValidatorTest extends TestCase
         $this->assertEquals('This field is required', $this->validator->firstErrorOf('last_name'));
         $this->assertEquals('This field is required', $this->validator->firstErrorOf('password'));
         $this->assertEquals('This field is required', $this->validator->firstErrorOf('password_confirmation'));
-        $this->assertEquals('This field must be valid email address', $this->validator->firstErrorOf('email'));
+        $this->assertEquals('This field must be a valid email address', $this->validator->firstErrorOf('email'));
 
     }
 
@@ -103,7 +103,7 @@ class RegisterValidatorTest extends TestCase
         $this->assertFalse($this->validator->hasError('password_confirmation'));
         $this->assertFalse($this->validator->firstErrorOf('first_name'));
         $this->assertFalse($this->validator->firstErrorOf('last_name'));
-        $this->assertEquals('This field must be valid email address', $this->validator->firstErrorOf('email'));
+        $this->assertEquals('This field must be a valid email address', $this->validator->firstErrorOf('email'));
         $this->assertFalse($this->validator->firstErrorOf('password'));
         $this->assertFalse($this->validator->firstErrorOf('password_confirmation'));
     }

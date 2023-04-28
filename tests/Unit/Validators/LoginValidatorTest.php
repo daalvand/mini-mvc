@@ -38,7 +38,7 @@ class LoginValidatorTest extends TestCase
         $this->assertTrue($this->validator->hasError('email'));
         $this->assertTrue($this->validator->hasError('password'));
         $this->assertEquals('This field is required', $this->validator->firstErrorOf('password'));
-        $this->assertEquals('This field must be valid email address', $this->validator->firstErrorOf('email'));
+        $this->assertEquals('This field must be a valid email address', $this->validator->firstErrorOf('email'));
 
     }
 

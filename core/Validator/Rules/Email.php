@@ -13,6 +13,6 @@ class Email extends Rule
 
     public function message(): string
     {
-        return 'This field must be valid email address';
+        return 'This field must be a valid email address';
     }
 }
