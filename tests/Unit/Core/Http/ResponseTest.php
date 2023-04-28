@@ -13,7 +13,7 @@ class ResponseTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testSend(): void
+    public function test_send(): void
     {
         $content    = ['foo' => 'bar'];
         $statusCode = 200;
@@ -37,7 +37,7 @@ class ResponseTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testRedirect(): void
+    public function test_redirect(): void
     {
         $url        = 'https://example.com';
         $statusCode = 302;
@@ -53,7 +53,7 @@ class ResponseTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testWithJson(): void
+    public function test_with_json(): void
     {
         $data       = ['foo' => 'bar'];
         $statusCode = 200;
@@ -70,7 +70,7 @@ class ResponseTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testWithHtml(): void
+    public function test_with_html(): void
     {
         $html       = '<html lang="en"><body>hello world</body></html>';
         $statusCode = 200;
@@ -87,7 +87,7 @@ class ResponseTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testWithView(): void
+    public function test_with_view(): void
     {
         $viewMock = $this->createMock(View::class);
         $viewMock->expects($this->once())

@@ -10,7 +10,7 @@ class ItemModelTest extends TestCase
     /**
      * @dataProvider itemDataProvider
      */
-    public function testProperties(Item $item): void
+    public function test_properties(Item $item): void
     {
         $this->assertEquals('Test Item', $item->title);
         $this->assertEquals('This is a test item', $item->description);
@@ -21,7 +21,7 @@ class ItemModelTest extends TestCase
      /**
       * @dataProvider itemDataProvider
       */
-    public function testFillable(Item $item): void
+    public function test_fillable(Item $item): void
     {
         $fillable = ['title', 'description', 'price', 'image'];
         $this->assertEquals($fillable, $item->getFillable());
@@ -30,7 +30,7 @@ class ItemModelTest extends TestCase
      /**
       * @dataProvider itemDataProvider
       */
-    public function testTableName(Item $item): void
+    public function test_table_name(Item $item): void
     {
         $this->assertEquals('items', $item->tableName());
     }

@@ -2,30 +2,23 @@
 
 namespace Core\Contracts\Validator;
 
-abstract class Validator
+class Validator
 {
     protected array $errors    = [];
     protected array $data      = [];
     protected array $validated = [];
-    protected array $configs;
 
-    public function __construct()
+    public static function make(): static
     {
-        $this->configs = app()->getConfig('validator');
+        return new static();
     }
 
-    abstract public function rules(): array;
-
-    public function loadData($data): static
+    public function validate(array $data, array $rules = null): array|false
     {
         $this->data = $data;
-        return $this;
-    }
-
-    public function validate(): bool|array
-    {
-        foreach ($this->rules() as $attribute => $rules) {
-            $this->checkRules($attribute, $rules);
+        $rules      ??= $this->rules();
+        foreach ($rules as $attribute => $subRules) {
+            $this->checkRules($attribute, $subRules);
             if (!isset($this->errors[$attribute])) {
                 $this->validated[$attribute] = $this->getValueOf($attribute);
             }
@@ -34,20 +27,25 @@ abstract class Validator
         return empty($this->errors) ? $this->validated : false;
     }
 
+    public function rules(): array
+    {
+        return [];
+    }
+
     public function addError(string $attribute, string $message): void
     {
         $this->errors[$attribute][] = $message;
     }
 
-    public function hasError($attribute)
+    public function hasError(string $attribute): bool
     {
-        return $this->errors[$attribute] ?? false;
+        return (bool)($this->errors[$attribute] ?? false);
     }
 
-    public function firstErrorOf($attribute)
+    public function firstErrorOf(string $attribute): string|false
     {
         $errors = $this->errors[$attribute] ?? [];
-        return $errors[0] ?? '';
+        return reset($errors);
     }
 
     public function getValueOf(string $attribute): mixed
@@ -88,7 +86,7 @@ abstract class Validator
         $exploded = explode(':', $rule);
         $baseName = array_shift($exploded);
         $baseName = strtolower($baseName);
-        $clasName = $this->configs['rules'][$baseName];
+        $clasName = app()->getConfig('validator')['rules'][$baseName];
         $params   = [];
         if ($exploded) {
             $params = explode(',', end($exploded));

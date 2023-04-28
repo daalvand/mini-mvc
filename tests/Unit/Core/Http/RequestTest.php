@@ -21,7 +21,7 @@ class RequestTest extends TestCase
         ]);
     }
 
-    public function testAll(): void
+    public function test_all(): void
     {
         $this->assertSame([
              'name'  => 'John',
@@ -30,35 +30,35 @@ class RequestTest extends TestCase
         ], $this->request->all());
     }
 
-    public function testMethod(): void
+    public function test_method(): void
     {
         $this->assertSame('get', $this->request->method());
     }
 
-    public function testUrl(): void
+    public function test_url(): void
     {
         $this->assertSame('/users', $this->request->url());
     }
 
-    public function testIsGet(): void
+    public function test_is_get(): void
     {
         $this->assertTrue($this->request->isGet());
         $this->assertFalse($this->request->isPost());
     }
 
-    public function testIsPost(): void
+    public function test_is_post(): void
     {
         $postRequest = new Request(['server' => ['REQUEST_METHOD' => 'POST']]);
         $this->assertTrue($postRequest->isPost());
         $this->assertFalse($postRequest->isGet());
     }
 
-    public function testBody(): void
+    public function test_body(): void
     {
         $this->assertSame(['email' => 'john@example.com'], $this->request->body());
     }
 
-    public function testGet(): void
+    public function test_get(): void
     {
         $this->assertSame('John', $this->request->get('name'));
         $this->assertSame(30, $this->request->get('age'));
@@ -66,20 +66,20 @@ class RequestTest extends TestCase
         $this->assertSame('USA', $this->request->get('country', 'USA'));
     }
 
-    public function testPost(): void
+    public function test_post(): void
     {
         $this->assertSame('john@example.com', $this->request->post('email'));
         $this->assertNull($this->request->post('password'));
         $this->assertSame('default', $this->request->post('gender', 'default'));
     }
 
-    public function testSetRouteParams(): void
+    public function test_set_route_params(): void
     {
         $this->request->setRouteParams(['id' => 1, 'slug' => 'foo']);
         $this->assertSame(['id' => 1, 'slug' => 'foo'], $this->request->routeParams());
     }
 
-    public function testRouteParam(): void
+    public function test_route_param(): void
     {
         $this->request->setRouteParams(['id' => 1, 'slug' => 'foo']);
         $this->assertSame(1, $this->request->routeParam('id'));
@@ -87,12 +87,12 @@ class RequestTest extends TestCase
         $this->assertNull($this->request->routeParam('name'));
     }
 
-    public function testCookies(): void
+    public function test_cookies(): void
     {
         $this->assertSame(['sessionId' => '123456789'], $this->request->cookies());
     }
 
-    public function testCookie(): void
+    public function test_cookie(): void
     {
         // Set up test data
         $cookieName           = 'testCookie';

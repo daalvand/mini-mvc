@@ -10,12 +10,12 @@ class UserModelTest extends TestCase
     /**
      * @dataProvider itemDataProvider
      */
-    public function testFullName(User $user): void
+    public function test_full_name(User $user): void
     {
         $this->assertEquals('John Doe', $user->fullName());
     }
 
-    public function testTableName(): void
+    public function test_table_name(): void
     {
         $this->assertEquals('users', User::tableName());
     }
@@ -23,7 +23,7 @@ class UserModelTest extends TestCase
     /**
      * @dataProvider itemDataProvider
      */
-    public function testFillable(User $user): void
+    public function test_fillable(User $user): void
     {
         $this->assertEquals(['first_name', 'last_name', 'email', 'password'], $user->getFillable());
     }
@@ -31,7 +31,7 @@ class UserModelTest extends TestCase
     /**
      * @dataProvider itemDataProvider
      */
-    public function testProperties(User $user): void
+    public function test_properties(User $user): void
     {
         $this->assertEquals('John', $user->first_name);
         $this->assertEquals('Doe', $user->last_name);

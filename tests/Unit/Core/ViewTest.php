@@ -40,7 +40,7 @@ class ViewTest extends TestCase
         }
     }
 
-    public function testCompileIncludeMethodIncludesOtherViews(): void
+    public function test_compile_include_method_includes_other_views(): void
     {
         $viewContent  = "This is the parent view. @include(child)";
         $childContent = "This is the child view. Hello, {{ \$name }}!";
@@ -51,7 +51,7 @@ class ViewTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testCompileYieldMethodFillsYieldsWithBlocks(): void
+    public function test_compile_yield_method_fills_yields_with_blocks(): void
     {
         $viewContent = "@block(content)<p>Hello, world!</p>@endblock<div>@yield(content)</div>";
         $expected    = "<div><p>Hello, world!</p></div>";
@@ -63,7 +63,7 @@ class ViewTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testCompileEchoMethodCompilesCorrectly(): void
+    public function test_compile_echo_method_compiles_correctly(): void
     {
         $viewContent = "<p>{{ 'Hello, world!' }}</p>";
         $expected    = "<p>Hello, world!</p>";
@@ -75,7 +75,7 @@ class ViewTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testCompileRawEchosMethodCompilesCorrectly(): void
+    public function test_compile_raw_echos_method_compiles_correctly(): void
     {
         $viewContent = "<p>{{ '<span>Hello</span>' }}</p>";
         $expected    = "<p>&lt;span&gt;Hello&lt;/span&gt;</p>";
@@ -83,7 +83,7 @@ class ViewTest extends TestCase
         $this->assertSame($expected, $this->view->render('test'));
     }
 
-    public function testCompileHtmlEchosMethodCompilesCorrectly(): void
+    public function test_compile_html_echos_method_compiles_correctly(): void
     {
         $viewContent = "<p>{!! '<span>Hello</span>' !!}</p>";
         $expected    = "<p><span>Hello</span></p>";
@@ -92,7 +92,7 @@ class ViewTest extends TestCase
     }
 
 
-    public function testCompileIncludeMethodCompilesCorrectly(): void
+    public function test_compile_include_method_compiles_correctly(): void
     {
         $viewContent = "@include(partials/header)";
         $expected    = "<header><h1>Page Title</h1></header>";
@@ -101,7 +101,7 @@ class ViewTest extends TestCase
         $this->assertSame($expected, $this->view->render('test', ['title' => 'Page Title']));
     }
 
-    public function testCompileCache(): void
+    public function test_compile_cache(): void
     {
         $viewContent  = "<p>{{ 'Hello, world!' }}</p>";
         $expected     = "<p>Hello, world!</p>";

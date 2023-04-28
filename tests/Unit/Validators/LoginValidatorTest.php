@@ -7,91 +7,54 @@ use Tests\TestCase;
 
 class LoginValidatorTest extends TestCase
 {
-    public function testValidateReturnsTrueWhenValidDataIsProvided(): void
+    protected LoginValidator $validator;
+
+    protected function setUp(): void
     {
-        // Arrange
-        $validator = new LoginValidator();
-        $data      = [
-             'email'    => 'test@example.com',
-             'password' => 'password123',
-        ];
-        $validator->loadData($data);
-
-        // Act
-        $result = $validator->validate();
-
-        // Assert
-        $this->assertEquals($data, $result);
+        parent::setUp();
+        $this->validator = LoginValidator::make();
     }
 
-    public function testValidateReturnsFalseWhenInvalidDataIsProvided(): void
+    public function test_valid_input(): void
     {
-        // Arrange
-        $validator = new LoginValidator();
-        $data      = [
+        $this->validator->validate([
+             'email'    => 'test@example.com',
+             'password' => 'password123',
+        ]);
+        $this->assertTrue($this->validator->passes());
+        $this->assertFalse($this->validator->hasError('password'));
+        $this->assertFalse($this->validator->hasError('email'));
+        $this->assertFalse($this->validator->firstErrorOf('password'));
+        $this->assertFalse($this->validator->firstErrorOf('email'));
+    }
+
+    public function test_invalid_input(): void
+    {
+        $this->validator->validate([
              'email'    => 'notanemail',
              'password' => '',
-        ];
-        $validator->loadData($data);
+        ]);
+        $this->assertFalse($this->validator->passes());
+        $this->assertTrue($this->validator->hasError('email'));
+        $this->assertTrue($this->validator->hasError('password'));
+        $this->assertEquals('This field is required', $this->validator->firstErrorOf('password'));
+        $this->assertEquals('This field must be valid email address', $this->validator->firstErrorOf('email'));
 
-        // Act
-        $result = $validator->validate();
-
-        // Assert
-        $this->assertFalse($result);
     }
 
-    public function testHasErrorReturnsTrueWhenThereIsAnError(): void
+    public function test_invalid_array_inputs(): void
     {
-        // Arrange
-        $validator = new LoginValidator();
-        $data      = [
-             'email'    => 'notanemail',
+        $data = [
+             'email'    => ['test'],
              'password' => ['test'],
         ];
-        $validator->loadData($data);
+        $this->validator->validate($data);
 
-        // Act
-        $validator->validate();
 
         // Assert
-        $this->assertEquals('This field must be valid email address', $validator->firstErrorOf('email'));
-        $this->assertEquals('This field must be string', $validator->firstErrorOf('password'));
-    }
-
-    public function testHasErrorReturnsFalseWhenThereIsNoError(): void
-    {
-        // Arrange
-        $validator = new LoginValidator();
-        $data      = [
-             'email'    => 'test@example.com',
-             'password' => 'password123',
-        ];
-        $validator->loadData($data);
-
-        // Act
-        $validator->validate();
-        $result = $validator->hasError('email');
-
-        // Assert
-        $this->assertFalse($result);
-    }
-
-    public function testFirstErrorOfReturnsAnEmptyStringWhenThereIsNoError(): void
-    {
-        // Arrange
-        $validator = new LoginValidator();
-        $data      = [
-             'email'    => 'test@example.com',
-             'password' => 'password123',
-        ];
-        $validator->loadData($data);
-
-        // Act
-        $validator->validate();
-        $result = $validator->firstErrorOf('email');
-
-        // Assert
-        $this->assertEquals('', $result);
+        $this->assertTrue($this->validator->hasError('email'));
+        $this->assertTrue($this->validator->hasError('password'));
+        $this->assertEquals('This field must be string', $this->validator->firstErrorOf('email'));
+        $this->assertEquals('This field must be string', $this->validator->firstErrorOf('password'));
     }
 }
