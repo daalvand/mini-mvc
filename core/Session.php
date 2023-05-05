@@ -11,7 +11,6 @@ class Session implements SessionContract
 
     public function __construct()
     {
-        session_start();
         $this->setRemoveTrueForTempData();
     }
 
@@ -136,5 +135,10 @@ class Session implements SessionContract
     protected function isDestroyed(): bool
     {
         return session_status() === PHP_SESSION_NONE;
+    }
+
+    public function start(): void
+    {
+        session_start();
     }
 }

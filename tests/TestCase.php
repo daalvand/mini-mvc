@@ -3,29 +3,29 @@
 namespace Tests;
 
 use Core\Contracts\App;
-use Core\Contracts\Session;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 
-class TestCase  extends PHPUnitTestCase
+class TestCase extends PHPUnitTestCase
 {
     protected App $app;
 
-     protected function setUp(): void
-     {
-         $this->startApplication();
-          parent::setUp();
-     }
+    protected function setUp(): void
+    {
+        $this->startApplication();
+        session()->start();
+        parent::setUp();
+    }
 
-     protected function tearDown(): void
-     {
-         $this->app->get(Session::class)->destroy();
-          parent::tearDown();
-     }
+    protected function tearDown(): void
+    {
+        session()->destroy();
+        parent::tearDown();
+    }
 
-     protected function startApplication(): void
-     {
-         $this->app = require __DIR__ . '/../bootstrap/app.php';
-     }
+    protected function startApplication(): void
+    {
+        $this->app = require __DIR__ . '/../bootstrap/app.php';
+    }
 
     protected function assertDatabaseHas(string $table, array $conditions = []): void
     {

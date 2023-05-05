@@ -28,5 +28,7 @@ interface Session
 
     public function regenerate(): void;
 
+    public function start(): void;
+
     public function destroy(): void;
 }
