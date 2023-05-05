@@ -141,4 +141,9 @@ class Session implements SessionContract
     {
         session_start();
     }
+
+     public function close(): void
+     {
+         session_write_close();
+     }
 }

@@ -31,4 +31,6 @@ interface Session
     public function start(): void;
 
     public function destroy(): void;
+
+    public function close(): void;
 }
