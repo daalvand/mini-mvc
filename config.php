@@ -19,6 +19,7 @@ if(isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing') {
 $dotenv->load();
 
 return [
+     'debug'     => ($_ENV['DEBUG'] ?? 'false') === 'true',
      'app_name'  => $_ENV['APP_NAME'],
      'db'        => [
           'dsn'      => $_ENV['DB_DSN'],

@@ -50,43 +50,53 @@ class HandlerTest extends TestCase
         $this->assertStringContainsString('Test error', file_get_contents($this->logFile));
         $this->assertStringContainsString('test.php', file_get_contents($this->logFile));
         $this->assertStringContainsString('42', file_get_contents($this->logFile));
-        $this->assertSame('<h1>500 - server error</h1>', $actualOutput);
-        $this->assertEquals(500, http_response_code());
+        $this->assertSame("\033[31m Error: 256 - Test error in test.php on line 42 \033[0m", $actualOutput);
     }
 
     public function test_exception_handler(): void
     {
 
         $exception = new RuntimeException('Test exception');
+        $code      = $exception->getCode();
+        $class     = RuntimeException::class;
+        $message   = $exception->getMessage();
+        $trace     = $exception->getTraceAsString();
         ob_start();
         Handler::exceptionHandler($exception);
         $actualOutput = ob_get_clean();
         $this->assertFileExists($this->logFile);
         $this->assertStringContainsString('Test exception', file_get_contents($this->logFile));
-        $this->assertSame('<h1>500 - server error</h1>', $actualOutput);
-        $this->assertEquals(500, http_response_code());
+        $this->assertSame("\033[31m Exception $class - $code - $message:\n $trace \033[0m", $actualOutput);
     }
 
     public function test_exception_handler_404(): void
     {
-        $exception = new NotFoundException('Test exception');
+        $exception = new NotFoundException();
+        $code      = $exception->getCode();
+        $class     = NotFoundException::class;
+        $message   = $exception->getMessage();
+        $trace     = $exception->getTraceAsString();
         ob_start();
         Handler::exceptionHandler($exception);
         $actualOutput = ob_get_clean();
-        $this->assertFalse(file_exists($this->logFile));
-        $this->assertSame('<h1>404 - Test exception</h1>', $actualOutput);
-        $this->assertEquals(404, http_response_code());
+        $this->assertFileExists($this->logFile);
+        $this->assertStringContainsString($message, file_get_contents($this->logFile));
+        $this->assertSame("\033[31m Exception $class - $code - $message:\n $trace \033[0m", $actualOutput);
     }
 
     public function test_exception_handler_403(): void
     {
         $exception = new ForbiddenException();
+        $code      = $exception->getCode();
+        $class     = ForbiddenException::class;
+        $message   = $exception->getMessage();
+        $trace     = $exception->getTraceAsString();
         ob_start();
         Handler::exceptionHandler($exception);
         $actualOutput = ob_get_clean();
-        $this->assertFalse(file_exists($this->logFile));
-        $this->assertSame('<h1>403 - Permission denied!</h1>', $actualOutput);
-        $this->assertEquals(403, http_response_code());
+        $this->assertFileExists($this->logFile);
+        $this->assertStringContainsString($message, file_get_contents($this->logFile));
+        $this->assertSame("\033[31m Exception $class - $code - $message:\n $trace \033[0m", $actualOutput);
     }
 }
 
