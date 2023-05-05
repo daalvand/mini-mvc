@@ -139,6 +139,12 @@ class QueryBuilder implements QueryBuilderContract
         return $stmt->rowCount() > 0;
     }
 
+    public function insertGetId(array $data): int|string
+    {
+        $this->insert($data);
+        return $this->database->lastInsertId();
+    }
+
     public function delete(): bool
     {
         $this->sql = "DELETE FROM $this->table";

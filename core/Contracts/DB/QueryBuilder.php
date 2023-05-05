@@ -28,6 +28,8 @@ interface QueryBuilder
 
     public function insert(array $data): bool;
 
+    public function insertGetId(array $data): int|string;
+
     public function delete(): bool;
 
     public function update(array $data): bool;

@@ -26,4 +26,24 @@ class TestCase  extends PHPUnitTestCase
      {
          $this->app = require __DIR__ . '/../bootstrap/app.php';
      }
+
+    protected function assertDatabaseHas(string $table, array $conditions = []): void
+    {
+        $query = query_builder()->table($table);
+        foreach ($conditions as $key => $value) {
+            $query->where($key, '=', $value);
+        }
+
+        $this->assertTrue($query->exists());
+    }
+
+    protected function assertDatabaseMissing(string $table, array $conditions): void
+    {
+        $query = query_builder()->table($table);
+        foreach ($conditions as $key => $value) {
+            $query->where($key, '=', $value);
+        }
+
+        $this->assertFalse($query->exists());
+    }
 }

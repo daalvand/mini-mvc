@@ -12,13 +12,12 @@ trait RefreshDatabase
 {
     protected function refreshDatabase(): void
     {
-        $this->app->get(Migrator::class)->rollbackMigrations();
-        $this->app->get(Migrator::class)->applyMigrations();
+        app()->get(Migrator::class)->rollbackMigrations();
+        app()->get(Migrator::class)->applyMigrations();
     }
 
     protected function setUp(): void
     {
-        $this->startApplication();
         parent::setUp();
         $this->refreshDatabase();
     }

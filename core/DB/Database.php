@@ -34,4 +34,9 @@ class Database implements DatabaseContract
     {
         return $this->pdo->exec($sql);
     }
+
+    public function lastInsertId(?string $name = null): string|int
+    {
+        return $this->pdo->lastInsertId($name);
+    }
 }

@@ -3,7 +3,7 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Item;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class ItemModelTest extends TestCase
 {
