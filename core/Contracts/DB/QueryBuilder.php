@@ -51,4 +51,8 @@ interface QueryBuilder
     public function truncate(): bool;
 
     public function raw(string $query, array $bindings = []): static;
+
+    public function toSql(): string;
+
+    public function getBindings(): array;
 }
