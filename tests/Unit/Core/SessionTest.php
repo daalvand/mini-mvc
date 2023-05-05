@@ -7,6 +7,18 @@ use Tests\TestCase;
 
 class SessionTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        session()->start();
+    }
+
+    protected function tearDown(): void
+    {
+        session()->destroy();
+        parent::tearDown();
+    }
+
     public function test_set_and_get(): void
     {
         session()->set('foo', 'bar');

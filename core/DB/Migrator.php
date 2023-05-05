@@ -63,7 +63,8 @@ class Migrator implements MigratorContract
 
     protected function getNewMigrations(): array
     {
-        $appliedMigrations = array_flip($this->getAppliedMigrations());
+        $appliedMigrations = array_column($this->getAppliedMigrations(), 'migration');
+        $appliedMigrations = array_flip($appliedMigrations);
         $files             = glob($this->basePath . '/database/migrations/*.php');
         $newMigrations     = [];
         foreach ($files as $file) {

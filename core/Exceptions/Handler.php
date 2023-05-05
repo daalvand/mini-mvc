@@ -12,6 +12,18 @@ class Handler
 {
     protected static string|null $logPath = null;
 
+    public static function bootstrap(): void
+    {
+        // Set the error reporting level to the strictest level
+        error_reporting(-1);
+
+        // Register a custom error handler
+        set_error_handler([self::class, 'errorHandler']);
+        // Register a custom exception handler
+        set_exception_handler([self::class, 'exceptionHandler']);
+    }
+
+
     public static function errorHandler(int $errNo, string $errStr, string $errFile, int $errLine): void
     {
         $logPath = self::getLogPath();
