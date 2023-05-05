@@ -168,7 +168,7 @@ class Router implements RouterContract
             if (!class_exists($middleware) || !is_subclass_of($middleware, Middleware::class)) {
                 throw new RuntimeException("Invalid Middleware!");
             }
-            $middleware = new $middleware;
+            $middleware = app()->get($middleware);
             $middleware->handle($this->request);
         }
     }
