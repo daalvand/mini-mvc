@@ -2,6 +2,7 @@
 
 namespace Core\Exceptions;
 
+use Core\Http\Response;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger;
@@ -9,58 +10,68 @@ use Throwable;
 
 class Handler
 {
-    public static function errorHandler(int $errNo, string $errStr, string $errFile, int $errLine): never
+    protected static string|null $logPath = null;
+
+    public static function errorHandler(int $errNo, string $errStr, string $errFile, int $errLine): void
     {
         $logPath = self::getLogPath();
         // Log the error using Monolog
         $log = new Logger('error');
         $log->pushHandler(new StreamHandler($logPath, Level::Error));
         $log->error($errStr, [
-            'file' => $errFile,
-            'line' => $errLine,
-            'code' => $errNo,
+             'file' => $errFile,
+             'line' => $errLine,
+             'code' => $errNo,
         ]);
-        echo "<h1>500 - server error</h1>";
-        exit;
+        (new Response('<h1>500 - server error</h1>', 500))->send();
     }
 
-    public static function exceptionHandler(Throwable $e): never
+    public static function exceptionHandler(Throwable $e): void
     {
-        http_response_code(500);
+        $content = '<h1>500 - server error</h1>';
+        $code    = 500;
         if ($e instanceof NotFoundException || $e instanceof ForbiddenException) {
-            http_response_code($e->getCode());
-            echo "<h1>{$e->getMessage()}</h1>";
+            $content = '<h1>' . $e->getCode() . ' - ' . $e->getMessage() . '</h1>';
+            $code    = $e->getCode();
         } else {
             self::logException($e);
-            echo "<h1>500 - server error</h1>";
         }
-        exit;
+        (new Response($content, $code))->send();
+    }
+
+
+    public static function setLogPath(string $logPath): void
+    {
+        self::$logPath = $logPath;
     }
 
     protected static function getLogPath(): string
     {
-        try {
-            $config = app()->getConfig('log');
-            $baseBase = app()->basePath();
-            $logPath = merge_paths($baseBase, $config['path'], date('Y-m-d') . '.log');
-        } catch (Throwable) {
-            $logPath = __DIR__ . '/../../storage/logs/' . date('Y-m-d') . '.log';
+        if (self::$logPath) {
+            return self::$logPath;
         }
-        return $logPath;
+        try {
+            $config        = app()->getConfig('log');
+            $baseBase      = app()->basePath();
+            self::$logPath = merge_paths($baseBase, $config['path'], date('Y-m-d') . '.log');
+        } catch (Throwable) {
+            self::$logPath = __DIR__ . '/../../storage/logs/' . date('Y-m-d') . '.log';
+        }
+        return self::$logPath;
     }
 
 
     public static function logException(Throwable $e, Level $level = Level::Error): void
     {
         $logPath = self::getLogPath();
-        $log = new Logger('app');
+        $log     = new Logger('app');
         $log->pushHandler(new StreamHandler($logPath, $level));
         $log->log($level, $e->getMessage(), [
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'trace' => $e->getTrace(),
-            'code' => $e->getCode(),
-            'exception' => get_class($e),
+             'file'      => $e->getFile(),
+             'line'      => $e->getLine(),
+             'trace'     => $e->getTrace(),
+             'code'      => $e->getCode(),
+             'exception' => get_class($e),
         ]);
     }
 }

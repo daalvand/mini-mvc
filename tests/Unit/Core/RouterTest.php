@@ -81,13 +81,13 @@ class RouterTest extends TestCase
     {
         //create a mock middleware
         $middleware = $this->createMock(Middleware::class);
-        $middleware->method('handle')->willReturnCallback(function (ContractRequest $request) {
-            echo 'Middleware on route ' . $request->url();
+        $middleware->method('handle')->willReturnCallback(function (ContractRequest $request, $next) {
+            return 'Middleware on route ' . $request->url();
         });
 
         $middlewareClass = get_class($middleware);
 
-        $this->app->bind($middlewareClass, function () use ($middleware) {
+        $this->app->singleton($middlewareClass, function () use ($middleware) {
             return $middleware;
         });
 
@@ -104,8 +104,8 @@ class RouterTest extends TestCase
             return 'Hello, world!';
         }, [], [$middlewareClass]);
 
-        $this->expectOutputString('Middleware on route /foo');
-        $router->resolve();
+        $response = $router->resolve();
+        $this->assertEquals('Middleware on route /foo', $response);
     }
 
     /**
@@ -144,6 +144,7 @@ class RouterTest extends TestCase
         }, [], ['InvalidMiddleware']);
 
         $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Invalid Middleware: InvalidMiddleware');
         $router->resolve();
     }
 

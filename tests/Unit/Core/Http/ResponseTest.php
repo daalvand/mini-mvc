@@ -18,7 +18,10 @@ class ResponseTest extends TestCase
         $content    = ['foo' => 'bar'];
         $statusCode = 200;
         $viewMock   = $this->createMock(View::class);
-        $response   = new Response($viewMock);
+        $this->app->bind(View::class, function () use ($viewMock) {
+            return $viewMock;
+        });
+        $response = new Response();
         $response->setContent($content)
                  ->setStatusCode($statusCode)
                  ->setHeader('Content-Type', 'application/json');
@@ -42,8 +45,11 @@ class ResponseTest extends TestCase
         $url        = 'https://example.com';
         $statusCode = 302;
 
-        $viewMock   = $this->createMock(View::class);
-        $response   = new Response($viewMock);
+        $viewMock = $this->createMock(View::class);
+        $this->app->bind(View::class, function () use ($viewMock) {
+            return $viewMock;
+        });
+        $response = new Response();
         $response->redirect($url, $statusCode);
 
         $this->assertEquals($url, $response->header('Location'));
@@ -58,8 +64,11 @@ class ResponseTest extends TestCase
         $data       = ['foo' => 'bar'];
         $statusCode = 200;
 
-        $viewMock   = $this->createMock(View::class);
-        $response   = new Response($viewMock);
+        $viewMock = $this->createMock(View::class);
+        $this->app->bind(View::class, function () use ($viewMock) {
+            return $viewMock;
+        });
+        $response = new Response();
         $response->withJson($data, $statusCode);
 
         $this->assertEquals('application/json', $response->header('Content-Type'));
@@ -74,9 +83,11 @@ class ResponseTest extends TestCase
     {
         $html       = '<html lang="en"><body>hello world</body></html>';
         $statusCode = 200;
-
         $viewMock   = $this->createMock(View::class);
-        $response   = new Response($viewMock);
+        $this->app->bind(View::class, function () use ($viewMock) {
+            return $viewMock;
+        });
+        $response = new Response();
         $response->withHtml($html, $statusCode);
 
         $this->assertEquals('text/html', $response->header('Content-Type'));
@@ -94,10 +105,12 @@ class ResponseTest extends TestCase
                  ->method('render')
                  ->with('test-view', ['foo' => 'bar'])
                  ->willReturn('<h1>Hello, World!</h1>');
+        $this->app->singleton(View::class, function () use ($viewMock) {
+            return $viewMock;
+        });
 
-        $response = new Response($viewMock);
+        $response = new Response();
         $response->withView('test-view', ['foo' => 'bar']);
-
         $this->assertEquals('<h1>Hello, World!</h1>', $response->content());
         $this->assertEquals(200, $response->statusCode());
         $this->assertEquals(['Content-Type' => 'text/html'], $response->headers());

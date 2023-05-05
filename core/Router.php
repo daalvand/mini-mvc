@@ -83,9 +83,7 @@ class Router implements RouterContract
             $callback = $this->resolveController($callback);
         }
 
-        $this->executeMiddlewares();
-
-        return $callback($this->request);
+        return $this->executeMiddlewares($callback);
     }
 
     protected function getCallback(): string|array|callable|null
@@ -161,15 +159,23 @@ class Router implements RouterContract
         return $callback;
     }
 
-    protected function executeMiddlewares(): void
+    protected function executeMiddlewares(callable $callback)
     {
         $middlewares = $this->currentRoute['middlewares'] ?? [];
-        foreach ($middlewares as $middleware) {
+        $next        = function (Request $request) use ($callback) {
+            return $callback($request);
+        };
+
+        while ($middleware = array_pop($middlewares)) {
             if (!class_exists($middleware) || !is_subclass_of($middleware, Middleware::class)) {
-                throw new RuntimeException("Invalid Middleware!");
+                throw new RuntimeException("Invalid Middleware: $middleware");
             }
-            $middleware = app()->get($middleware);
-            $middleware->handle($this->request);
+            $instance = app()->get($middleware);
+            $next = function (Request $request) use ($instance, $next) {
+                return $instance->handle($request, $next);
+            };
         }
+
+        return $next($this->request);
     }
 }

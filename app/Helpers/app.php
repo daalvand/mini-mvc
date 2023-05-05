@@ -41,7 +41,7 @@ function router(): Router
 
 function render_view(string $view, array $data = []): string
 {
-    return app()->get(View::class)->view($view, $data);
+    return view()->render($view, $data);
 }
 
 function query_builder(): QueryBuilder
