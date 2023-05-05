@@ -25,7 +25,16 @@ class Session implements SessionContract
 
     public function getTemp(string $key): mixed
     {
+        if ($this->isDestroyed()) {
+            return null;
+        }
         return $_SESSION[self::TEMP_DATA][$key]['value'] ?? null;
+    }
+
+
+    public function removeTemp(string $key): void
+    {
+        unset($_SESSION[self::TEMP_DATA][$key]);
     }
 
     public function set(string $key, mixed $value, int $expireTime = null): void
@@ -36,6 +45,9 @@ class Session implements SessionContract
 
     public function get(string $key): mixed
     {
+        if ($this->isDestroyed()) {
+            return null;
+        }
         $session   = $_SESSION[$key] ?? null;
         $expiredAt = $session['expired_at'] ?? null;
         if (!$expiredAt || $expiredAt > time()) {
@@ -79,8 +91,11 @@ class Session implements SessionContract
     /**
      * @throws Exception
      */
-    public function csrfToken(): string
+    public function csrfToken(): string|null
     {
+        if ($this->isDestroyed()) {
+            return null;
+        }
         $config = app()->getConfig('csrf_token');
         $key    = $config['key'] ?? 'csrf_token';
         $ttl    = $config['ttl'] ?? 15 * 60;
@@ -113,6 +128,13 @@ class Session implements SessionContract
 
     public function destroy(): void
     {
-        session_destroy();
+        if (!$this->isDestroyed()) {
+            session_destroy();
+        }
+    }
+
+    protected function isDestroyed(): bool
+    {
+        return session_status() === PHP_SESSION_NONE;
     }
 }
