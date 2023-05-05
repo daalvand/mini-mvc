@@ -12,6 +12,7 @@ use Core\Contracts\Http\Response;
 use Core\Contracts\Router;
 use Core\Contracts\Session;
 use Core\Contracts\View;
+use Core\DB\ModelQueryBuilder;
 
 function app(): AppContract
 {
@@ -46,6 +47,11 @@ function render_view(string $view, array $data = []): string
 function query_builder(): QueryBuilder
 {
     return app()->get(QueryBuilder::class);
+}
+
+function model_query_builder(): ModelQueryBuilder
+{
+    return app()->get(ModelQueryBuilder::class);
 }
 
 function view(): View

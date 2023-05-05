@@ -81,7 +81,7 @@ abstract class Model implements ArrayAccess
 
     public static function query(): ModelQueryBuilder
     {
-        return (new ModelQueryBuilder(database()))->model(static::class);
+        return model_query_builder()->model(static::class);
     }
 
     public function offsetExists($offset): bool

@@ -16,6 +16,7 @@ use Core\Contracts\Session as SessionContract;
 use Core\Contracts\View as ViewContract;
 use Core\DB\Database;
 use Core\DB\Migrator;
+use Core\DB\ModelQueryBuilder;
 use Core\DB\QueryBuilder;
 use Core\DB\Schema\Schema;
 use Core\Http\Request;
@@ -78,6 +79,10 @@ class AppServiceProvider implements ServiceProvider
 
         $this->app->bind(QueryBuilderContract::class, function (App $app) {
             return new QueryBuilder($app->get(DatabaseContract::class));
+        });
+
+        $this->app->bind(ModelQueryBuilder::class, function (App $app) {
+            return new ModelQueryBuilder($app->get(DatabaseContract::class));
         });
     }
 }
