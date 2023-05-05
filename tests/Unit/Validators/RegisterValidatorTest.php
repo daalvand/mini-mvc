@@ -19,6 +19,7 @@ class RegisterValidatorTest extends TestCase
 
     public function test_valid_input(): void
     {
+        $this->mockUniqueQueryBuilder();
         $this->validator->validate([
              'first_name'            => 'John',
              'last_name'             => 'Doe',
@@ -41,6 +42,7 @@ class RegisterValidatorTest extends TestCase
 
     public function test_invalid_input(): void
     {
+        $this->mockUniqueQueryBuilder();
         $this->validator->validate([
              'first_name'            => '',
              'last_name'             => '',
@@ -64,6 +66,7 @@ class RegisterValidatorTest extends TestCase
 
     public function test_required_fields(): void
     {
+        $this->mockUniqueQueryBuilder();
         $this->validator->validate([
              'first_name'            => '',
              'last_name'             => '',
@@ -87,6 +90,7 @@ class RegisterValidatorTest extends TestCase
 
     public function test_email_validation(): void
     {
+        $this->mockUniqueQueryBuilder();
         $this->validator->validate([
              'first_name'            => 'John',
              'last_name'             => 'Doe',
