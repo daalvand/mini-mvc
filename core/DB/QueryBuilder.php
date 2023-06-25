@@ -8,8 +8,7 @@ use PDO;
 
 class QueryBuilder implements QueryBuilderContract
 {
-    protected array    $params;
-    protected array    $values;
+    protected array    $bindings;
     protected array    $wheres;
     protected string   $select;
     protected array    $orderBy;
@@ -87,25 +86,10 @@ class QueryBuilder implements QueryBuilderContract
 
     public function get(): array
     {
-        $this->parseWheres();
+        $sql = $this->toSql();
 
-        $sql = "SELECT $this->select FROM $this->table $this->sql";
-
-        if (!empty($this->orderBy)) {
-            [$column, $direction] = $this->orderBy;
-            $sql .= " ORDER BY $column $direction";
-        }
-
-        if (!is_null($this->limit)) {
-            $sql .= " LIMIT $this->limit";
-        }
-
-        if (!is_null($this->offset)) {
-            $sql .= " OFFSET $this->offset";
-        }
-
-        $stmt = $this->database->pdo()->prepare($sql);
-        $stmt->execute(array_merge($this->values, $this->params));
+        $stmt = $this->database->prepare($sql);
+        $stmt->execute($this->bindings);
         $this->reset();
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         if (!$result) {
@@ -128,15 +112,21 @@ class QueryBuilder implements QueryBuilderContract
         $columns = array_keys($data[0]);
         $values  = [];
         foreach ($data as $row) {
-            $values[]     = rtrim(str_repeat('?,', count($row)), ',');
-            $this->values = array_merge($this->values, array_values($row));
+            $values[]       = rtrim(str_repeat('?,', count($row)), ',');
+            $this->bindings = array_merge($this->bindings, array_values($row));
         }
         $values = implode('),(', $values);
         $sql    = "INSERT INTO $this->table (" . implode(',', $columns) . ") VALUES ($values)";
-        $stmt   = $this->database->pdo()->prepare($sql);
-        $stmt->execute($this->values);
+        $stmt   = $this->database->prepare($sql);
+        $stmt->execute($this->bindings);
         $this->reset();
         return $stmt->rowCount() > 0;
+    }
+
+    public function insertGetId(array $data): int|string
+    {
+        $this->insert($data);
+        return $this->database->lastInsertId();
     }
 
     public function delete(): bool
@@ -145,8 +135,8 @@ class QueryBuilder implements QueryBuilderContract
         if (!empty($this->wheres)) {
             $this->parseWheres();
         }
-        $stmt = $this->database->pdo()->prepare($this->sql);
-        $stmt->execute(array_merge($this->values, $this->params));
+        $stmt = $this->database->prepare($this->sql);
+        $stmt->execute($this->bindings);
         $this->reset();
         return $stmt->rowCount() > 0;
     }
@@ -168,8 +158,8 @@ class QueryBuilder implements QueryBuilderContract
             $this->parseWheres();
         }
 
-        $stmt = $this->database->pdo()->prepare($this->sql);
-        $stmt->execute(array_merge($values, $this->values, $this->params));
+        $stmt = $this->database->prepare($this->sql);
+        $stmt->execute(array_merge($values, $this->bindings));
         $this->reset();
 
         return $stmt->rowCount() > 0;
@@ -182,6 +172,7 @@ class QueryBuilder implements QueryBuilderContract
         return $result[0]['count'] ?? 0;
     }
 
+
     private function parseWheres(): void
     {
         if ($this->wheres) {
@@ -190,12 +181,12 @@ class QueryBuilder implements QueryBuilderContract
             foreach ($this->wheres as $where) {
                 [$column, $operator, $value] = $where;
                 if (is_array($value)) {
-                    $placeholders = rtrim(str_repeat('?,', count($value)), ',');
-                    $this->sql    .= "$column $operator ($placeholders) AND ";
-                    $this->values = array_merge($this->values, $value);
+                    $placeholders   = rtrim(str_repeat('?,', count($value)), ',');
+                    $this->sql      .= "$column $operator ($placeholders) AND ";
+                    $this->bindings = array_merge($this->bindings, $value);
                 } else {
-                    $this->sql      .= "$column $operator ? AND ";
-                    $this->values[] = $value;
+                    $this->sql        .= "$column $operator ? AND ";
+                    $this->bindings[] = $value;
                 }
             }
 
@@ -205,14 +196,98 @@ class QueryBuilder implements QueryBuilderContract
 
     protected function reset(): void
     {
-        $this->table   = '';
-        $this->params  = [];
-        $this->values  = [];
-        $this->wheres  = [];
-        $this->select  = '*';
-        $this->orderBy = [];
-        $this->limit   = null;
-        $this->offset  = null;
-        $this->sql     = '';
+        $this->table    = '';
+        $this->bindings = [];
+        $this->wheres   = [];
+        $this->select   = '*';
+        $this->orderBy  = [];
+        $this->limit    = null;
+        $this->offset   = null;
+        $this->sql      = '';
+    }
+
+    public function exists(): bool
+    {
+        return $this->count() > 0;
+    }
+
+    public function sum(string $column): int|float
+    {
+        $result = $this->aggregate('SUM', $column);
+        return $result ? (float)$result : 0.0;
+    }
+
+    public function avg(string $column): int|float
+    {
+        $result = $this->aggregate('AVG', $column);
+        return $result ? (float)$result : 0.0;
+    }
+
+    public function min(string $column): int|float
+    {
+        $result = $this->aggregate('MIN', $column);
+        return $result ? (float)$result : 0.0;
+    }
+
+    public function max(string $column): int|float
+    {
+        $result = $this->aggregate('MAX', $column);
+        return $result ? (float)$result : 0.0;
+    }
+
+    public function truncate(): bool
+    {
+        $sql  = "TRUNCATE TABLE $this->table";
+        $stmt = $this->database->prepare($sql);
+        $stmt->execute();
+        return true;
+    }
+
+    public function raw(string $query, array $bindings = []): static
+    {
+        $this->reset();
+        $this->sql      = $query;
+        $this->bindings = $bindings;
+        return $this;
+    }
+
+    public function aggregate(string $function, string $column): mixed
+    {
+        $this->select = "$function($column) as aggregate";
+        $stmt         = $this->database->prepare("SELECT $this->select FROM $this->table $this->sql");
+        $stmt->execute($this->bindings);
+        $this->reset();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['aggregate'];
+    }
+
+    public function toSql(): string
+    {
+        $this->parseWheres();
+
+        if (stripos($this->sql, 'SELECT') === false) {
+            $sql = "SELECT $this->select FROM $this->table $this->sql";
+        }else{
+            $sql = $this->sql;
+        }
+
+        if (!empty($this->orderBy)) {
+            [$column, $direction] = $this->orderBy;
+            $sql .= " ORDER BY $column $direction";
+        }
+
+        if (!is_null($this->limit)) {
+            $sql .= " LIMIT $this->limit";
+        }
+
+        if (!is_null($this->offset)) {
+            $sql .= " OFFSET $this->offset";
+        }
+        return $sql;
+    }
+
+    public function getBindings(): array
+    {
+        return $this->bindings;
     }
 }

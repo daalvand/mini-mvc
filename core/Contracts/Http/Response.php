@@ -19,4 +19,6 @@ interface Response
     public function withHtml(string $html, int $statusCode = 200): static;
 
     public function withView(string $view, array $data = [], int $statusCode = 200): static;
+
+    public function __toString(): string;
 }

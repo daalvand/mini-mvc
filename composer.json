@@ -12,6 +12,11 @@
             "Core\\": "core/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Mehdi",
@@ -25,6 +30,8 @@
         "monolog/monolog": "^3.3"
     },
     "require-dev": {
-        "symfony/var-dumper": "^6.1"
+        "ext-xdebug": "*",
+        "symfony/var-dumper": "^6.1",
+        "phpunit/phpunit": "10.1.2"
     }
 }

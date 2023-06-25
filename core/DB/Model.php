@@ -20,6 +20,8 @@ abstract class Model implements ArrayAccess
 
     protected array $casts = [];
 
+    protected bool $incrementing = true;
+
     /**
      * Get table name or create it
      *
@@ -58,7 +60,13 @@ abstract class Model implements ArrayAccess
     public static function create(array $attributes = []): static
     {
         $instance = new static($attributes);
-        static::query()->insert($instance->attributes);
+        $id       = static::query()->insertGetId($instance->attributes);
+
+        if ($instance->incrementing) {
+            $instance->attributes[static::primaryKey()] = (int)$id;
+        } else {
+            $instance->attributes[static::primaryKey()] = $id;
+        }
         return $instance;
     }
 
@@ -81,7 +89,7 @@ abstract class Model implements ArrayAccess
 
     public static function query(): ModelQueryBuilder
     {
-        return (new ModelQueryBuilder(database()))->model(static::class);
+        return model_query_builder()->model(static::class);
     }
 
     public function offsetExists($offset): bool
@@ -102,5 +110,10 @@ abstract class Model implements ArrayAccess
     public function offsetUnset($offset): void
     {
         unset($this->attributes[$offset]);
+    }
+
+    public function getFillable(): array
+    {
+        return $this->fillable;
     }
 }

@@ -14,4 +14,6 @@ interface Database
     public function exec(string $sql): int|false;
 
     public function pdo(): PDO;
+
+    public function lastInsertId(?string $name = null): string|int;
 }

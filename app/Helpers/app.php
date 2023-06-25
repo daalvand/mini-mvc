@@ -12,6 +12,7 @@ use Core\Contracts\Http\Response;
 use Core\Contracts\Router;
 use Core\Contracts\Session;
 use Core\Contracts\View;
+use Core\DB\ModelQueryBuilder;
 
 function app(): AppContract
 {
@@ -40,12 +41,17 @@ function router(): Router
 
 function render_view(string $view, array $data = []): string
 {
-    return app()->get(View::class)->view($view, $data);
+    return view()->render($view, $data);
 }
 
 function query_builder(): QueryBuilder
 {
     return app()->get(QueryBuilder::class);
+}
+
+function model_query_builder(): ModelQueryBuilder
+{
+    return app()->get(ModelQueryBuilder::class);
 }
 
 function view(): View
@@ -76,4 +82,17 @@ function auth(): AuthManager
 function csrf_token(): string
 {
     return session()->csrfToken();
+}
+
+if (!function_exists('getallheaders')) {
+    function getallheaders(): array
+    {
+        $headers = [];
+        foreach ($_SERVER as $name => $value) {
+            if (str_starts_with($name, 'HTTP_')) {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+        return $headers;
+    }
 }

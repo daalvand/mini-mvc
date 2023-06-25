@@ -4,10 +4,9 @@
 use Core\Contracts\App;
 use Core\Exceptions\Handler;
 
-try {
-    /** @var App $app */
-    $app = require __DIR__ . '/../bootstrap/app.php';
-    $app->run();
-} catch (Throwable $e) {
-    Handler::exceptionHandler($e);
-}
+/** @var App $app */
+$app = require __DIR__ . '/../bootstrap/app.php';
+Handler::bootstrap();
+session()->start();
+auth()->checkAuth();
+$app->run();

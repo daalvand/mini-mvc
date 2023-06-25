@@ -2,23 +2,23 @@
 
 namespace Core\Contracts\Validator;
 
-abstract class Validator
+class Validator
 {
-    protected array $errors = [];
-    protected array $data = [];
+    protected array $errors    = [];
+    protected array $data      = [];
     protected array $validated = [];
 
-    abstract public function rules(): array;
-
-    public function loadData($data): void
+    public static function make(): static
     {
-        $this->data = $data;
+        return new static();
     }
 
-    public function validate(): bool|array
+    public function validate(array $data, array $rules = null): array|false
     {
-        foreach ($this->rules() as $attribute => $rules) {
-            $this->checkRules($attribute, $rules);
+        $this->data = $data;
+        $rules      ??= $this->rules();
+        foreach ($rules as $attribute => $subRules) {
+            $this->checkRules($attribute, $subRules);
             if (!isset($this->errors[$attribute])) {
                 $this->validated[$attribute] = $this->getValueOf($attribute);
             }
@@ -27,20 +27,25 @@ abstract class Validator
         return empty($this->errors) ? $this->validated : false;
     }
 
+    public function rules(): array
+    {
+        return [];
+    }
+
     public function addError(string $attribute, string $message): void
     {
         $this->errors[$attribute][] = $message;
     }
 
-    public function hasError($attribute)
+    public function hasError(string $attribute): bool
     {
-        return $this->errors[$attribute] ?? false;
+        return (bool)($this->errors[$attribute] ?? false);
     }
 
-    public function firstErrorOf($attribute)
+    public function firstErrorOf(string $attribute): string|false
     {
         $errors = $this->errors[$attribute] ?? [];
-        return $errors[0] ?? '';
+        return reset($errors);
     }
 
     public function getValueOf(string $attribute): mixed
@@ -83,9 +88,14 @@ abstract class Validator
         $baseName = strtolower($baseName);
         $clasName = app()->getConfig('validator')['rules'][$baseName];
         $params   = [];
-        if($exploded){
+        if ($exploded) {
             $params = explode(',', end($exploded));
         }
         return new $clasName($this, $attribute, $value, $params);
+    }
+
+    public function passes(): bool
+    {
+        return empty($this->errors);
     }
 }

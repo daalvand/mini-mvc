@@ -3,23 +3,27 @@
 namespace Core\Validator\Rules;
 
 use Core\Contracts\Validator\Rule;
+use Exception;
 
 class Unique extends Rule
 {
-    protected function check(): bool
+    /**
+     * @throws Exception
+     */
+    public function check(): bool
     {
-        $table      = $this->params[0];
-        $uniqueAttr = $this->params[1];
-        $db         = database();
-        $statement  = $db->prepare("SELECT * FROM $table WHERE $uniqueAttr = :$uniqueAttr");
-        $statement->bindValue(":$uniqueAttr", $this->value);
-        $statement->execute();
-        $record = $statement->fetchObject();
-        return !$record;
+        if (count($this->params) !== 2) {
+            throw new Exception('Unique rule must have 2 parameters');
+        }
+        if (!$this->value) {
+            return true;
+        }
+        [$table, $uniqueAttr] = $this->params;
+        return !query_builder()->table($table)->where($uniqueAttr, $this->value)->exists();
     }
 
-    protected function message(): string
+    public function message(): string
     {
-        return "Record with with this value: {$this->value} already exists";
+        return "Record with this value: $this->value already exists";
     }
 }

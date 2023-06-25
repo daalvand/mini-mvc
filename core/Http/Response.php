@@ -7,10 +7,11 @@ use Core\Contracts\Http\Response as ResponseContract;
 class Response implements ResponseContract
 {
     public function __construct(
-         protected mixed $content = null,
-         protected int $statusCode = 200,
-         protected array $headers = []
-    ) {
+        protected mixed $content = null,
+        protected int   $statusCode = 200,
+        protected array $headers = []
+    )
+    {
     }
 
     public function setHeader(string $header, mixed $value): static
@@ -40,14 +41,7 @@ class Response implements ResponseContract
             header($header . ': ' . $value);
         }
 
-        $content = $this->content;
-        // encode the response content if it's an array or object
-        if (is_array($this->content) || is_object($this->content)) {
-            $content = json_encode($this->content);
-        }
-
-        // send the response content
-        echo $content;
+        echo $this->__toString();
     }
 
     public function redirect(string $url, int $statusCode = 302): static
@@ -78,5 +72,35 @@ class Response implements ResponseContract
         $content = render_view($view, $data);
         $this->withHtml($content, $statusCode);
         return $this;
+    }
+
+    public function content(): mixed
+    {
+        return $this->content;
+    }
+
+    public function statusCode(): int
+    {
+        return $this->statusCode;
+    }
+
+    public function headers(): array
+    {
+        return $this->headers;
+    }
+
+
+    public function header(string $key): mixed
+    {
+        return $this->headers[$key] ?? null;
+    }
+
+    public function __toString(): string
+    {
+        $content = $this->content;
+        if (is_array($this->content) || is_object($this->content)) {
+            $content = json_encode($this->content);
+        }
+        return (string)$content;
     }
 }

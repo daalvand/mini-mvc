@@ -18,9 +18,8 @@ class AuthController extends Controller
 
     public function login(Request $request): Response
     {
-        $validator = new LoginValidator();
-        $validator->loadData($request->body());
-        $validated = $validator->validate();
+        $validator = LoginValidator::make();
+        $validated = $validator->validate($request->body());
         if ($validated && $this->tryLogin($validated)) {
             return response()->redirect('profile');
         }
@@ -38,9 +37,8 @@ class AuthController extends Controller
 
     public function register(Request $request): Response
     {
-        $validator = new RegisterValidator();
-        $validator->loadData($request->body());
-        $validated = $validator->validate();
+        $validator = RegisterValidator::make();
+        $validated = $validator->validate($request->body());
         if ($validated) {
             $validated['password'] = password_hash($validated['password'], PASSWORD_DEFAULT);
         }

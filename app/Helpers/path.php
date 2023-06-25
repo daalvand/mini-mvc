@@ -13,3 +13,22 @@ if (!function_exists('merge_paths')) {
         return implode('/', $paths);
     }
 }
+
+
+//remove directory recursively
+if (!function_exists('remove_directory')) {
+    function remove_directory(string $directory): void
+    {
+        if (is_dir($directory)) {
+            $files = glob($directory . '/*');
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                } else {
+                    remove_directory($file);
+                }
+            }
+            rmdir($directory);
+        }
+    }
+}

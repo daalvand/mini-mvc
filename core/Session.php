@@ -11,7 +11,6 @@ class Session implements SessionContract
 
     public function __construct()
     {
-        session_start();
         $this->setRemoveTrueForTempData();
     }
 
@@ -25,7 +24,16 @@ class Session implements SessionContract
 
     public function getTemp(string $key): mixed
     {
+        if ($this->isDestroyed()) {
+            return null;
+        }
         return $_SESSION[self::TEMP_DATA][$key]['value'] ?? null;
+    }
+
+
+    public function removeTemp(string $key): void
+    {
+        unset($_SESSION[self::TEMP_DATA][$key]);
     }
 
     public function set(string $key, mixed $value, int $expireTime = null): void
@@ -36,6 +44,9 @@ class Session implements SessionContract
 
     public function get(string $key): mixed
     {
+        if ($this->isDestroyed()) {
+            return null;
+        }
         $session   = $_SESSION[$key] ?? null;
         $expiredAt = $session['expired_at'] ?? null;
         if (!$expiredAt || $expiredAt > time()) {
@@ -79,8 +90,11 @@ class Session implements SessionContract
     /**
      * @throws Exception
      */
-    public function csrfToken(): string
+    public function csrfToken(): string|null
     {
+        if ($this->isDestroyed()) {
+            return null;
+        }
         $config = app()->getConfig('csrf_token');
         $key    = $config['key'] ?? 'csrf_token';
         $ttl    = $config['ttl'] ?? 15 * 60;
@@ -105,4 +119,31 @@ class Session implements SessionContract
             }
         }
     }
+
+    public function regenerate(): void
+    {
+        session_regenerate_id();
+    }
+
+    public function destroy(): void
+    {
+        if (!$this->isDestroyed()) {
+            session_destroy();
+        }
+    }
+
+    protected function isDestroyed(): bool
+    {
+        return session_status() === PHP_SESSION_NONE;
+    }
+
+    public function start(): void
+    {
+        session_start();
+    }
+
+     public function close(): void
+     {
+         session_write_close();
+     }
 }

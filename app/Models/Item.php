@@ -16,5 +16,5 @@ class Item extends Model
 {
     protected static string $tableName = 'items';
 
-    protected array $fillable = ['title', 'description', 'image', 'price'];
+    protected array $fillable = ['title', 'description', 'price', 'image'];
 }

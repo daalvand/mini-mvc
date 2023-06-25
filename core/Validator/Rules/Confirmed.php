@@ -8,10 +8,10 @@ class Confirmed extends Rule
 {
     public function message(): string
     {
-        return 'The :attribute confirmation does not match.';
+        return "The $this->attribute confirmation does not match.";
     }
 
-    protected function check(): bool
+    public function check(): bool
     {
         $confirmedAttribute = $this->params[0] ?? $this->attribute . '_confirmation';
         $confirmedValue     = $this->validator->getValueOf($confirmedAttribute);

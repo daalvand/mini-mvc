@@ -15,7 +15,6 @@ class AuthManager implements AuthManagerContract
     public function __construct(protected Session $session, protected array $configs)
     {
         $this->userClass = $configs['user'];
-        $this->checkAuth();
     }
 
     public function checkAuth(): void

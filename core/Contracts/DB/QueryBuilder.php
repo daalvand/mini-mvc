@@ -28,9 +28,31 @@ interface QueryBuilder
 
     public function insert(array $data): bool;
 
+    public function insertGetId(array $data): int|string;
+
     public function delete(): bool;
 
     public function update(array $data): bool;
 
     public function count(): int;
+
+    public function exists(): bool;
+
+    public function sum(string $column): int|float;
+
+    public function avg(string $column): int|float;
+
+    public function min(string $column): int|float;
+
+    public function max(string $column): int|float;
+
+    public function aggregate(string $function, string $column): mixed;
+
+    public function truncate(): bool;
+
+    public function raw(string $query, array $bindings = []): static;
+
+    public function toSql(): string;
+
+    public function getBindings(): array;
 }
