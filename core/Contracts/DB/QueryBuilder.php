@@ -46,7 +46,7 @@ interface QueryBuilder
 
     public function max(string $column): int|float;
 
-    public function aggregate(string $column, string $function): mixed;
+    public function aggregate(string $function, string $column): mixed;
 
     public function truncate(): bool;
 

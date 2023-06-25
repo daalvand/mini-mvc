@@ -214,25 +214,25 @@ class QueryBuilder implements QueryBuilderContract
     public function sum(string $column): int|float
     {
         $result = $this->aggregate('SUM', $column);
-        return $result ? (float)$result[0]['sum'] : 0;
+        return $result ? (float)$result : 0.0;
     }
 
     public function avg(string $column): int|float
     {
         $result = $this->aggregate('AVG', $column);
-        return $result ? (float)$result[0]['avg'] : 0;
+        return $result ? (float)$result : 0.0;
     }
 
     public function min(string $column): int|float
     {
         $result = $this->aggregate('MIN', $column);
-        return $result ? (float)$result[0]['min'] : 0;
+        return $result ? (float)$result : 0.0;
     }
 
     public function max(string $column): int|float
     {
         $result = $this->aggregate('MAX', $column);
-        return $result ? (float)$result[0]['max'] : 0;
+        return $result ? (float)$result : 0.0;
     }
 
     public function truncate(): bool
@@ -251,7 +251,7 @@ class QueryBuilder implements QueryBuilderContract
         return $this;
     }
 
-    public function aggregate(string $column, string $function): mixed
+    public function aggregate(string $function, string $column): mixed
     {
         $this->select = "$function($column) as aggregate";
         $stmt         = $this->database->prepare("SELECT $this->select FROM $this->table $this->sql");
@@ -265,7 +265,11 @@ class QueryBuilder implements QueryBuilderContract
     {
         $this->parseWheres();
 
-        $sql = "SELECT $this->select FROM $this->table $this->sql";
+        if (stripos($this->sql, 'SELECT') === false) {
+            $sql = "SELECT $this->select FROM $this->table $this->sql";
+        }else{
+            $sql = $this->sql;
+        }
 
         if (!empty($this->orderBy)) {
             [$column, $direction] = $this->orderBy;
