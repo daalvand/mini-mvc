@@ -91,9 +91,9 @@ mini-mvc
 │       ├───Models
 │       └───Validators
 └───views
-├───auth
-├───layouts
-└───profile
+    ├───auth
+    ├───layouts
+    └───profile
 ```
 
 ## Contributing
