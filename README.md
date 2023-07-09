@@ -2,7 +2,7 @@
 
 ## Description
 
-This project is a simple pure MVC framework based on Laravel.
+This project is a simple pure MVC framework inspired by Laravel.
 
 ## Installation
 
